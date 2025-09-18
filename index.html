@@ -2,18 +2,21 @@
 <html>
 <head>
     <title>Frame TOC</title>
-    <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
 </head>
 <body>
+    <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
     <script>
-        miro.onReady(function() {
-            miro.board.ui.on('icon:click', function() {
-                miro.board.ui.openPanel({
-                    url: 'app.html',
-                    height: 600
+        // Wait for the SDK to be fully available
+        if (typeof miro !== 'undefined') {
+            miro.onReady(function() {
+                miro.board.ui.on('icon:click', function() {
+                    miro.board.ui.openPanel({
+                        url: 'app.html',
+                        height: 600
+                    });
                 });
             });
-        });
+        }
     </script>
 </body>
 </html>
