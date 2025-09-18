@@ -1,44 +1,4 @@
-async function saveDescription(frameId) {
-            try {
-                const textarea = document.getElementById(`desc-${frameId}`);
-                if (textarea) {
-                    descriptions[frameId] = textarea.value.trim();
-                    
-                    // Try Miro storage first, fallback to localStorage
-                    try {
-                        if (typeof miro !== 'undefined' && miro.board && miro.board.storage) {
-                            await miro.board.storage.set('frameDescriptions', descriptions);
-                        } else {
-                            localStorage.setItem('miro_toc_descriptions', JSON.stringify(descriptions));
-                        }
-                    } catch (storageError) {
-                        console.warn('Storage failed, using localStorage:', storageError);
-                        localStorage.setItem('miro_toc_descriptions', JSON.stringify(descriptions));
-                    }
-                    
-                    editingFrame = null;
-                    renderTableOfContents();
-                    showStatus('Description saved', 'success');
-                }
-            } catch (error) {
-                console.error('Failed to save description:', error);
-                showStatus('Failed to save description', 'error');
-            }
-        }
-
-        async function changeSortOrder() {
-            const select = document.getElementById('sortSelect');
-            sortAlphabetically = select.value === 'alphabetical';
-            
-            // Save preference with fallback
-            try {
-                if (typeof miro !== 'undefined' && miro.board && miro.board.storage) {
-                    await miro.board.storage.set('tocSettings', { sortAlphabetically });
-                } else {
-                    localStorage.setItem('miro_toc_settings', JSON.stringify({ sortAlphabetically }));
-                }
-            } catch (error) {
-                console.warn('Coul<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -128,51 +88,6 @@ async function saveDescription(frameId) {
             transform: translateY(-1px);
         }
 
-        .sort-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-left: auto;
-        }
-
-        .sort-toggle label {
-            font-size: 14px;
-            color: #8b5cf6;
-            font-weight: 500;
-        }
-
-        .toggle-switch {
-            width: 48px;
-            height: 26px;
-            background: rgba(198, 108, 253, 0.2);
-            border-radius: 20px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid rgba(198, 108, 253, 0.3);
-        }
-
-        .toggle-switch.active {
-            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
-            border-color: transparent;
-        }
-
-        .toggle-slider {
-            width: 20px;
-            height: 20px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 3px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(22px);
-        }
-
         .content {
             flex: 1;
             overflow-y: auto;
@@ -203,31 +118,17 @@ async function saveDescription(frameId) {
         }
 
         .toc-item {
-            padding: 18px 24px;
+            padding: 0 0 0 10px;
             border-bottom: 1px solid rgba(255, 182, 193, 0.1);
-            transition: all 0.3s;
+            transition: all 0.2s;
             position: relative;
-        }
-
-        .toc-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 3px;
-            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
-            transform: scaleX(0);
-            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .toc-item:hover {
             background: linear-gradient(90deg, rgba(255, 182, 193, 0.1) 0%, rgba(198, 108, 253, 0.05) 100%);
-            padding-left: 28px;
-        }
-
-        .toc-item:hover::before {
-            transform: scaleX(1);
         }
 
         .toc-item:last-child {
@@ -237,27 +138,13 @@ async function saveDescription(frameId) {
         .toc-header {
             display: flex;
             align-items: center;
-            gap: 14px;
-            margin-bottom: 8px;
-        }
-
-        .frame-number {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 600;
-            flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+            flex: 1;
+            gap: 8px;
+            padding: 8px 0;
         }
 
         .frame-name {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 600;
             color: #4a5568;
             cursor: pointer;
@@ -266,7 +153,8 @@ async function saveDescription(frameId) {
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
+            line-height: 1.2;
         }
 
         .frame-name:hover {
@@ -275,97 +163,10 @@ async function saveDescription(frameId) {
         }
 
         .link-icon {
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             opacity: 0.6;
             flex-shrink: 0;
-        }
-
-        .copy-link-btn {
-            background: none;
-            border: none;
-            padding: 6px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .copy-link-btn:hover {
-            background: rgba(198, 108, 253, 0.1);
-        }
-
-        .copy-link-btn svg {
-            width: 13px;
-            height: 13px;
-            stroke: #c66cfd;
-        }
-
-        .description-container {
-            margin-left: 34px;
-            margin-top: 4px;
-        }
-
-        .description-text {
-            font-size: 12px;
-            color: #6b7280;
-            line-height: 1.4;
-            padding: 8px 12px;
-            background: linear-gradient(135deg, rgba(255, 182, 193, 0.08) 0%, rgba(198, 108, 253, 0.05) 100%);
-            border-radius: 10px;
-            margin-top: 4px;
-            border: 1px solid rgba(198, 108, 253, 0.1);
-        }
-
-        .description-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1.5px solid rgba(198, 108, 253, 0.2);
-            border-radius: 10px;
-            font-size: 12px;
-            resize: vertical;
-            min-height: 60px;
-            font-family: inherit;
-            background: rgba(255, 255, 255, 0.8);
-            transition: all 0.3s;
-        }
-
-        .description-input:focus {
-            outline: none;
-            border-color: rgba(198, 108, 253, 0.5);
-            box-shadow: 0 0 0 4px rgba(198, 108, 253, 0.1);
-            background: white;
-        }
-
-        .edit-controls {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 11px;
-            border-radius: 14px;
-        }
-
-        .edit-btn {
-            background: none;
-            border: none;
-            color: #c66cfd;
-            cursor: pointer;
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 10px;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-
-        .edit-btn:hover {
-            background: rgba(198, 108, 253, 0.1);
-            transform: translateY(-1px);
         }
 
         .empty-state {
@@ -512,7 +313,6 @@ async function saveDescription(frameId) {
     <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
     <script>
         let frames = [];
-        let sortAlphabetically = true; // Always sort alphabetically
 
         // Initialize the app
         async function initApp() {
@@ -603,7 +403,6 @@ async function saveDescription(frameId) {
             frames.forEach((frame, index) => {
                 const frameId = frame.id;
                 const frameName = frame.title || `Frame ${index + 1}`;
-                const description = descriptions[frameId] || '';
                 
                 html += `
                     <div class="toc-item">
@@ -614,70 +413,13 @@ async function saveDescription(frameId) {
                                 </svg>
                                 ${escapeHtml(frameName)}
                             </a>
-                            ${!description && editingFrame !== frameId ? `
-                                <button class="edit-btn" onclick="startEditing('${frameId}')">
-                                    + Add note
-                                </button>
-                            ` : ''}
                         </div>
-                        ${description || editingFrame === frameId ? `
-                            <div class="description-container">
-                                ${editingFrame === frameId ? `
-                                    <textarea 
-                                        class="description-input" 
-                                        id="desc-${frameId}"
-                                        placeholder="Add a note for this frame..."
-                                    >${escapeHtml(description)}</textarea>
-                                    <div class="edit-controls">
-                                        <button class="btn btn-primary btn-small" onclick="saveDescription('${frameId}')">
-                                            Save
-                                        </button>
-                                        <button class="btn btn-secondary btn-small" onclick="cancelEditing()">
-                                            Cancel
-                                        </button>
-                                    </div>
-                                ` : description ? `
-                                    <div class="description-text">
-                                        ${escapeHtml(description)}
-                                        <button class="edit-btn" onclick="startEditing('${frameId}')">
-                                            ✏️ Edit
-                                        </button>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        ` : ''}
                     </div>
                 `;
             });
             
             html += '</div>';
             container.innerHTML = html;
-        }
-
-        function getFrameUrl(frameId) {
-            // Get the current board URL and construct the frame link
-            const currentUrl = window.location.href;
-            const boardMatch = currentUrl.match(/\/app\/board\/([^\/\?]+)/);
-            
-            if (boardMatch && boardMatch[1]) {
-                const boardId = boardMatch[1];
-                return `https://miro.com/app/board/${boardId}/?moveToWidget=${frameId}`;
-            }
-            
-            // Fallback - try to construct from current URL
-            const baseUrl = currentUrl.split('?')[0].split('#')[0];
-            return `${baseUrl}?moveToWidget=${frameId}`;
-        }
-
-        async function copyFrameLink(frameId, frameName) {
-            try {
-                const frameUrl = getFrameUrl(frameId);
-                await navigator.clipboard.writeText(frameUrl);
-                showStatus(`Link copied for "${frameName}"`, 'success');
-            } catch (error) {
-                console.error('Failed to copy link:', error);
-                showStatus('Failed to copy link', 'error');
-            }
         }
 
         async function navigateToFrame(frameId) {
@@ -693,61 +435,6 @@ async function saveDescription(frameId) {
             }
         }
 
-        function startEditing(frameId) {
-            editingFrame = frameId;
-            renderTableOfContents();
-            // Focus on the textarea
-            setTimeout(() => {
-                const textarea = document.getElementById(`desc-${frameId}`);
-                if (textarea) {
-                    textarea.focus();
-                    textarea.select();
-                }
-            }, 100);
-        }
-
-        function cancelEditing() {
-            editingFrame = null;
-            renderTableOfContents();
-        }
-
-        async function saveDescription(frameId) {
-            try {
-                const textarea = document.getElementById(`desc-${frameId}`);
-                if (textarea) {
-                    descriptions[frameId] = textarea.value.trim();
-                    await miro.board.storage.set('frameDescriptions', descriptions);
-                    editingFrame = null;
-                    renderTableOfContents();
-                    showStatus('Description saved', 'success');
-                }
-            } catch (error) {
-                console.error('Failed to save description:', error);
-                showStatus('Failed to save description', 'error');
-            }
-        }
-
-        async function changeSortOrder() {
-            const select = document.getElementById('sortSelect');
-            sortAlphabetically = select.value === 'alphabetical';
-            
-            // Save preference
-            try {
-                await miro.board.storage.set('tocSettings', { sortAlphabetically });
-            } catch (error) {
-                console.warn('Could not save sort preference:', error);
-            }
-            
-            await refreshFrames();
-        }
-
-        function updateSortSelect() {
-            const select = document.getElementById('sortSelect');
-            if (select) {
-                select.value = sortAlphabetically ? 'alphabetical' : 'position';
-            }
-        }
-
         async function exportToClipboard() {
             try {
                 let text = 'Table of Contents\n';
@@ -755,19 +442,11 @@ async function saveDescription(frameId) {
                 
                 frames.forEach((frame, index) => {
                     const frameName = frame.title || `Frame ${index + 1}`;
-                    const description = descriptions[frame.id] || '';
-                    const frameUrl = getFrameUrl(frame.id);
-                    
                     text += `${index + 1}. ${frameName}\n`;
-                    if (description) {
-                        text += `   Description: ${description}\n`;
-                    }
-                    text += `   Link: ${frameUrl}\n`;
-                    text += '\n';
                 });
                 
                 await navigator.clipboard.writeText(text);
-                showStatus('Table of contents with links copied!', 'success');
+                showStatus('Table of contents copied!', 'success');
             } catch (error) {
                 console.error('Failed to copy to clipboard:', error);
                 showStatus('Failed to copy to clipboard', 'error');
