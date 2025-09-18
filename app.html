@@ -25,18 +25,11 @@
         .header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 16px 20px 14px 20px;
+            padding: 0px 20px 14px 25px;
             border-bottom: 1px solid rgba(255, 182, 193, 0.2);
             box-shadow: 0 4px 20px rgba(255, 182, 193, 0.1);
         }
 
-        .header h1 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 4px;
-            letter-spacing: -0.3px;
-        }
 
         .header p {
             font-size: 12px;
@@ -288,14 +281,10 @@
 </head>
 <body>
     <div class="header">
-        <h1>Table of Contents</h1>
         <p>Easily find all frames on your board</p>
         <div class="controls">
             <button class="btn btn-primary" onclick="refreshFrames()">
                 Refresh
-            </button>
-            <button class="btn btn-secondary" onclick="exportToClipboard()">
-                Export List
             </button>
         </div>
     </div>
@@ -432,24 +421,6 @@
             } catch (error) {
                 console.error('Failed to navigate to frame:', error);
                 showStatus('Failed to navigate to frame', 'error');
-            }
-        }
-
-        async function exportToClipboard() {
-            try {
-                let text = 'Table of Contents\n';
-                text += '==================\n\n';
-                
-                frames.forEach((frame, index) => {
-                    const frameName = frame.title || `Frame ${index + 1}`;
-                    text += `${index + 1}. ${frameName}\n`;
-                });
-                
-                await navigator.clipboard.writeText(text);
-                showStatus('Table of contents copied!', 'success');
-            } catch (error) {
-                console.error('Failed to copy to clipboard:', error);
-                showStatus('Failed to copy to clipboard', 'error');
             }
         }
 
