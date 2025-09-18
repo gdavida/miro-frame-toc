@@ -454,13 +454,13 @@
                 Refresh
             </button>
             <button class="btn btn-secondary" onclick="exportToClipboard()">
-                Copy to Clipboard
+                Export List
             </button>
-            <div class="sort-toggle">
-                <label>Sort A-Z</label>
-                <div class="toggle-switch" id="sortToggle" onclick="toggleSort()">
-                    <div class="toggle-slider"></div>
-                </div>
+            <div class="sort-dropdown">
+                <select id="sortSelect" onchange="changeSortOrder()">
+                    <option value="alphabetical">Sort A-Z</option>
+                    <option value="position">Sort by Position</option>
+                </select>
             </div>
         </div>
     </div>
@@ -502,7 +502,7 @@
                     const savedSettings = await miro.board.storage.get('tocSettings');
                     if (savedSettings) {
                         sortAlphabetically = savedSettings.sortAlphabetically !== false;
-                        updateSortToggle();
+                        updateSortSelect();
                     }
 
                     // Load saved descriptions
@@ -595,54 +595,48 @@
                 const frameId = frame.id;
                 const frameName = frame.title || `Frame ${index + 1}`;
                 const description = descriptions[frameId] || '';
-                const frameUrl = getFrameUrl(frameId);
                 
                 html += `
                     <div class="toc-item">
                         <div class="toc-header">
-                            <div class="frame-number">${index + 1}</div>
-                            <a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;" title="${frameUrl}">
+                            <a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;">
                                 <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
                                 ${escapeHtml(frameName)}
                             </a>
-                            <button class="copy-link-btn" onclick="copyFrameLink('${frameId}', '${escapeHtml(frameName)}')" title="Copy link to this frame">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                                </svg>
-                            </button>
                             ${!description && editingFrame !== frameId ? `
                                 <button class="edit-btn" onclick="startEditing('${frameId}')">
-                                    + Add description
+                                    + Add note
                                 </button>
                             ` : ''}
                         </div>
-                        <div class="description-container">
-                            ${editingFrame === frameId ? `
-                                <textarea 
-                                    class="description-input" 
-                                    id="desc-${frameId}"
-                                    placeholder="Enter a description for this frame..."
-                                >${escapeHtml(description)}</textarea>
-                                <div class="edit-controls">
-                                    <button class="btn btn-primary btn-small" onclick="saveDescription('${frameId}')">
-                                        Save
-                                    </button>
-                                    <button class="btn btn-secondary btn-small" onclick="cancelEditing()">
-                                        Cancel
-                                    </button>
-                                </div>
-                            ` : description ? `
-                                <div class="description-text">
-                                    ${escapeHtml(description)}
-                                    <button class="edit-btn" onclick="startEditing('${frameId}')">
-                                        ✏️ Edit
-                                    </button>
-                                </div>
-                            ` : ''}
-                        </div>
+                        ${description || editingFrame === frameId ? `
+                            <div class="description-container">
+                                ${editingFrame === frameId ? `
+                                    <textarea 
+                                        class="description-input" 
+                                        id="desc-${frameId}"
+                                        placeholder="Add a note for this frame..."
+                                    >${escapeHtml(description)}</textarea>
+                                    <div class="edit-controls">
+                                        <button class="btn btn-primary btn-small" onclick="saveDescription('${frameId}')">
+                                            Save
+                                        </button>
+                                        <button class="btn btn-secondary btn-small" onclick="cancelEditing()">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                ` : description ? `
+                                    <div class="description-text">
+                                        ${escapeHtml(description)}
+                                        <button class="edit-btn" onclick="startEditing('${frameId}')">
+                                            ✏️ Edit
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
                     </div>
                 `;
             });
@@ -724,9 +718,9 @@
             }
         }
 
-        async function toggleSort() {
-            sortAlphabetically = !sortAlphabetically;
-            updateSortToggle();
+        async function changeSortOrder() {
+            const select = document.getElementById('sortSelect');
+            sortAlphabetically = select.value === 'alphabetical';
             
             // Save preference
             try {
@@ -738,12 +732,10 @@
             await refreshFrames();
         }
 
-        function updateSortToggle() {
-            const toggle = document.getElementById('sortToggle');
-            if (sortAlphabetically) {
-                toggle.classList.add('active');
-            } else {
-                toggle.classList.remove('active');
+        function updateSortSelect() {
+            const select = document.getElementById('sortSelect');
+            if (select) {
+                select.value = sortAlphabetically ? 'alphabetical' : 'position';
             }
         }
 
