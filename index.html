@@ -6,17 +6,13 @@
 </head>
 <body>
     <script>
-        async function init() {
+        miro.onReady(async () => {
             await miro.board.ui.on('icon:click', async () => {
                 await miro.board.ui.openPanel({
                     url: 'app.html',
                     height: 600
                 });
             });
-        }
-
-        miro.onReady(() => {
-            init();
         });
     </script>
 </body>
