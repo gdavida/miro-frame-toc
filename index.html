@@ -468,12 +468,8 @@
         // Initialize the app
         async function initApp() {
             try {
-                await miro.board.ui.on('icon:click', async () => {
-                    await miro.board.ui.openPanel({
-                        url: window.location.href,
-                        height: 600
-                    });
-                });
+                // Initial load
+                await refreshFrames();
 
                 // Load saved settings
                 const savedSettings = await miro.board.storage.get('tocSettings');
@@ -484,9 +480,6 @@
 
                 // Load saved descriptions
                 descriptions = await miro.board.storage.get('frameDescriptions') || {};
-
-                // Initial load
-                await refreshFrames();
 
                 // Listen for frame changes
                 miro.board.ui.on('items:create', handleItemChange);
@@ -769,9 +762,14 @@
         }
 
         // Initialize when SDK is ready
-        miro.onReady(() => {
-            initApp();
-        });
+        async function init() {
+            await miro.onReady(async () => {
+                await initApp();
+            });
+        }
+
+        // Start initialization
+        init();
     </script>
 </body>
 </html>
