@@ -6,9 +6,9 @@
 </head>
 <body>
     <script>
-        miro.onReady(async () => {
-            await miro.board.ui.on('icon:click', async () => {
-                await miro.board.ui.openPanel({
+        miro.onReady(function() {
+            miro.board.ui.on('icon:click', function() {
+                miro.board.ui.openPanel({
                     url: 'app.html',
                     height: 600
                 });
