@@ -1,4 +1,44 @@
-<!DOCTYPE html>
+async function saveDescription(frameId) {
+            try {
+                const textarea = document.getElementById(`desc-${frameId}`);
+                if (textarea) {
+                    descriptions[frameId] = textarea.value.trim();
+                    
+                    // Try Miro storage first, fallback to localStorage
+                    try {
+                        if (typeof miro !== 'undefined' && miro.board && miro.board.storage) {
+                            await miro.board.storage.set('frameDescriptions', descriptions);
+                        } else {
+                            localStorage.setItem('miro_toc_descriptions', JSON.stringify(descriptions));
+                        }
+                    } catch (storageError) {
+                        console.warn('Storage failed, using localStorage:', storageError);
+                        localStorage.setItem('miro_toc_descriptions', JSON.stringify(descriptions));
+                    }
+                    
+                    editingFrame = null;
+                    renderTableOfContents();
+                    showStatus('Description saved', 'success');
+                }
+            } catch (error) {
+                console.error('Failed to save description:', error);
+                showStatus('Failed to save description', 'error');
+            }
+        }
+
+        async function changeSortOrder() {
+            const select = document.getElementById('sortSelect');
+            sortAlphabetically = select.value === 'alphabetical';
+            
+            // Save preference with fallback
+            try {
+                if (typeof miro !== 'undefined' && miro.board && miro.board.storage) {
+                    await miro.board.storage.set('tocSettings', { sortAlphabetically });
+                } else {
+                    localStorage.setItem('miro_toc_settings', JSON.stringify({ sortAlphabetically }));
+                }
+            } catch (error) {
+                console.warn('Coul<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -456,12 +496,6 @@
             <button class="btn btn-secondary" onclick="exportToClipboard()">
                 Export List
             </button>
-            <div class="sort-dropdown">
-                <select id="sortSelect" onchange="changeSortOrder()">
-                    <option value="alphabetical">Sort A-Z</option>
-                    <option value="position">Sort by Position</option>
-                </select>
-            </div>
         </div>
     </div>
 
@@ -478,9 +512,7 @@
     <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
     <script>
         let frames = [];
-        let descriptions = {};
-        let sortAlphabetically = true;
-        let editingFrame = null;
+        let sortAlphabetically = true; // Always sort alphabetically
 
         // Initialize the app
         async function initApp() {
@@ -497,25 +529,12 @@
                 // Initial load
                 await refreshFrames();
 
-                // Load saved settings
+                // Listen for frame changes (simplified event listeners)
                 try {
-                    const savedSettings = await miro.board.storage.get('tocSettings');
-                    if (savedSettings) {
-                        sortAlphabetically = savedSettings.sortAlphabetically !== false;
-                        updateSortSelect();
+                    if (typeof miro !== 'undefined' && miro.board && miro.board.ui) {
+                        miro.board.ui.on('items:create', handleItemChange);
+                        miro.board.ui.on('items:delete', handleItemChange);
                     }
-
-                    // Load saved descriptions
-                    descriptions = await miro.board.storage.get('frameDescriptions') || {};
-                } catch (error) {
-                    console.warn('Could not load saved settings:', error);
-                }
-
-                // Listen for frame changes
-                try {
-                    miro.board.ui.on('items:create', handleItemChange);
-                    miro.board.ui.on('items:update', handleItemChange);
-                    miro.board.ui.on('items:delete', handleItemChange);
                 } catch (error) {
                     console.warn('Could not set up event listeners:', error);
                 }
@@ -559,18 +578,8 @@
                     return;
                 }
 
-                // Sort frames
-                if (sortAlphabetically) {
-                    frames.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-                } else {
-                    // Sort by position (top to bottom, left to right)
-                    frames.sort((a, b) => {
-                        if (Math.abs(a.y - b.y) < 50) {
-                            return a.x - b.x;
-                        }
-                        return a.y - b.y;
-                    });
-                }
+                // Always sort alphabetically
+                frames.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
 
                 renderTableOfContents();
                 showStatus(`Found ${frames.length} frame${frames.length !== 1 ? 's' : ''}`, 'success');
