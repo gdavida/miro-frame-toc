@@ -430,7 +430,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Table of Contents</h1>
+        <h1>Table of Contents <span style="font-size: 12px; color: #999; font-weight: normal;">v1.0.3</span></h1>
         <p>Easily find all frames on your board</p>
         <div class="controls">
             <button class="btn btn-primary" onclick="refreshFrames()">
@@ -504,11 +504,8 @@
                 const container = document.getElementById('tocContainer');
                 container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading frames...</span></div>';
 
-                // Get all items on the board
-                const items = await miro.board.get();
-                
-                // Filter for frames
-                frames = items.filter(item => item.type === 'frame');
+                // Get only frames (more efficient)
+                frames = await miro.board.get({ type: ['frame'] });
 
                 if (frames.length === 0) {
                     showEmptyState();
@@ -761,15 +758,13 @@
             return div.innerHTML;
         }
 
-        // Wait for Miro SDK to be available
-        window.addEventListener('load', function() {
-            if (window.miro) {
-                window.miro.onReady(function() {
-                    initApp();
-                });
-            } else {
-                console.error('Miro SDK not available');
-                document.getElementById('tocContainer').innerHTML = '<div class="error">This app must be run within Miro</div>';
+        // Initialize directly without window.load wrapper
+        miro.onReady(async () => {
+            try {
+                await initApp();
+            } catch (error) {
+                console.error('Failed to initialize app:', error);
+                document.getElementById('tocContainer').innerHTML = '<div class="error">Failed to initialize app</div>';
             }
         });
     </script>
