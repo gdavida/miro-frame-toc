@@ -7,16 +7,41 @@
     <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
     <script>
         // Wait for the SDK to be fully available
-        if (typeof miro !== 'undefined') {
-            miro.onReady(function() {
-                miro.board.ui.on('icon:click', function() {
-                    miro.board.ui.openPanel({
-                        url: 'app.html',
-                        height: 600
-                    });
+        async function initializeApp() {
+            try {
+                console.log('Initializing Miro app...');
+                
+                // Wait for miro to be available
+                if (typeof miro === 'undefined') {
+                    console.error('Miro SDK not available');
+                    return;
+                }
+
+                console.log('Miro SDK available, setting up icon click handler...');
+
+                // Set up the icon click handler
+                miro.board.ui.on('icon:click', async () => {
+                    console.log('Icon clicked, opening panel...');
+                    try {
+                        await miro.board.ui.openPanel({
+                            url: 'app.html',
+                            height: 600,
+                            width: 400
+                        });
+                        console.log('Panel opened successfully');
+                    } catch (error) {
+                        console.error('Failed to open panel:', error);
+                    }
                 });
-            });
+
+                console.log('App initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize app:', error);
+            }
         }
+
+        // Initialize when the page loads
+        window.addEventListener('load', initializeApp);
     </script>
 </body>
 </html>

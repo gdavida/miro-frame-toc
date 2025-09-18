@@ -378,6 +378,23 @@
             border: 1px solid rgba(255, 182, 193, 0.3);
         }
 
+        .error-state {
+            text-align: center;
+            padding: 60px 30px;
+            color: #dc2626;
+        }
+
+        .error-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .error-state p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateY(-10px);
@@ -468,34 +485,57 @@
         // Initialize the app
         async function initApp() {
             try {
+                console.log('Initializing Frame TOC app...');
+
+                // Check if Miro SDK is available
+                if (typeof miro === 'undefined') {
+                    throw new Error('Miro SDK not available');
+                }
+
+                console.log('Miro SDK available, loading frames...');
+
                 // Initial load
                 await refreshFrames();
 
                 // Load saved settings
-                const savedSettings = await miro.board.storage.get('tocSettings');
-                if (savedSettings) {
-                    sortAlphabetically = savedSettings.sortAlphabetically !== false;
-                    updateSortToggle();
+                try {
+                    const savedSettings = await miro.board.storage.get('tocSettings');
+                    if (savedSettings) {
+                        sortAlphabetically = savedSettings.sortAlphabetically !== false;
+                        updateSortToggle();
+                    }
+
+                    // Load saved descriptions
+                    descriptions = await miro.board.storage.get('frameDescriptions') || {};
+                } catch (error) {
+                    console.warn('Could not load saved settings:', error);
                 }
 
-                // Load saved descriptions
-                descriptions = await miro.board.storage.get('frameDescriptions') || {};
-
                 // Listen for frame changes
-                miro.board.ui.on('items:create', handleItemChange);
-                miro.board.ui.on('items:update', handleItemChange);
-                miro.board.ui.on('items:delete', handleItemChange);
+                try {
+                    miro.board.ui.on('items:create', handleItemChange);
+                    miro.board.ui.on('items:update', handleItemChange);
+                    miro.board.ui.on('items:delete', handleItemChange);
+                } catch (error) {
+                    console.warn('Could not set up event listeners:', error);
+                }
+
+                console.log('App initialized successfully');
 
             } catch (error) {
                 console.error('Failed to initialize app:', error);
-                showStatus('Failed to initialize app', 'error');
+                showError('Failed to initialize app. Please make sure you are running this inside Miro.');
             }
         }
 
         async function handleItemChange(event) {
-            // Check if any of the items are frames
-            if (event.items && event.items.some(item => item.type === 'frame')) {
-                await refreshFrames();
+            try {
+                // Check if any of the items are frames
+                if (event.items && event.items.some(item => item.type === 'frame')) {
+                    await refreshFrames();
+                }
+            } catch (error) {
+                console.error('Error handling item change:', error);
             }
         }
 
@@ -504,11 +544,15 @@
                 const container = document.getElementById('tocContainer');
                 container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading frames...</span></div>';
 
+                console.log('Fetching board items...');
+
                 // Get all items on the board
                 const items = await miro.board.get();
-                
+                console.log('Found', items.length, 'items on board');
+
                 // Filter for frames
                 frames = items.filter(item => item.type === 'frame');
+                console.log('Found', frames.length, 'frames');
 
                 if (frames.length === 0) {
                     showEmptyState();
@@ -533,8 +577,7 @@
 
             } catch (error) {
                 console.error('Failed to refresh frames:', error);
-                showStatus('Failed to load frames', 'error');
-                showEmptyState();
+                showError('Failed to load frames. Please try again.');
             }
         }
 
@@ -686,7 +729,11 @@
             updateSortToggle();
             
             // Save preference
-            await miro.board.storage.set('tocSettings', { sortAlphabetically });
+            try {
+                await miro.board.storage.set('tocSettings', { sortAlphabetically });
+            } catch (error) {
+                console.warn('Could not save sort preference:', error);
+            }
             
             await refreshFrames();
         }
@@ -742,6 +789,17 @@
             `;
         }
 
+        function showError(message) {
+            const container = document.getElementById('tocContainer');
+            container.innerHTML = `
+                <div class="error-state">
+                    <h3>Error</h3>
+                    <p>${message}</p>
+                    <button class="btn btn-primary" onclick="initApp()">Retry</button>
+                </div>
+            `;
+        }
+
         function showStatus(message, type) {
             const container = document.getElementById('statusMessage');
             container.innerHTML = `
@@ -761,16 +819,10 @@
             return div.innerHTML;
         }
 
-        // Wait for Miro SDK to be available
+        // Initialize when the page loads
         window.addEventListener('load', function() {
-            if (window.miro) {
-                window.miro.onReady(function() {
-                    initApp();
-                });
-            } else {
-                console.error('Miro SDK not available');
-                document.getElementById('tocContainer').innerHTML = '<div class="error">This app must be run within Miro</div>';
-            }
+            console.log('Page loaded, initializing app...');
+            initApp();
         });
     </script>
 </body>
