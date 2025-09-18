@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <h1>Test App Running</h1>
+    <div id="status">Loading SDK...</div>
+    <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
+    <script>
+        document.getElementById('status').innerHTML = 'SDK Loaded, waiting for ready...';
+        miro.onReady(function() {
+            document.getElementById('status').innerHTML = 'SDK Ready! App is working!';
+            console.log('SUCCESS: Miro SDK initialized');
+        });
+    </script>
+</body>
+</html>
