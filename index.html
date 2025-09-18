@@ -761,15 +761,17 @@
             return div.innerHTML;
         }
 
-        // Initialize when SDK is ready
-        async function init() {
-            await miro.onReady(async () => {
-                await initApp();
-            });
-        }
-
-        // Start initialization
-        init();
+        // Wait for Miro SDK to be available
+        window.addEventListener('load', function() {
+            if (window.miro) {
+                window.miro.onReady(function() {
+                    initApp();
+                });
+            } else {
+                console.error('Miro SDK not available');
+                document.getElementById('tocContainer').innerHTML = '<div class="error">This app must be run within Miro</div>';
+            }
+        });
     </script>
 </body>
 </html>
