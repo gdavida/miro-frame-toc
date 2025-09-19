@@ -421,7 +421,24 @@
             try {
                 const frame = frames.find(f => f.id === frameId);
                 if (frame) {
+                    // First, zoom to the frame normally
                     await miro.board.viewport.zoomTo(frame);
+                    
+                    // Then get the current viewport and adjust for the panel width
+                    const viewport = await miro.board.viewport.get();
+                    const PANEL_WIDTH = 368; // Width of the TOC panel
+                    
+                    // Calculate the offset needed to compensate for the panel
+                    // We want to shift the view left (negative x) so the frame appears centered in the visible area
+                    const offsetX = -PANEL_WIDTH / 2;
+                    
+                    // Set the viewport with the offset
+                    await miro.board.viewport.set({
+                        x: viewport.x + offsetX,
+                        y: viewport.y,
+                        zoom: viewport.zoom
+                    });
+                    
                     showStatus('Navigated to frame', 'success');
                 }
             } catch (error) {
