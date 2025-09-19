@@ -25,11 +25,18 @@
         .header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 0px 20px 14px 25px;
+            padding: 16px 20px 14px 20px;
             border-bottom: 1px solid rgba(255, 182, 193, 0.2);
             box-shadow: 0 4px 20px rgba(255, 182, 193, 0.1);
         }
 
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
 
         .header p {
             font-size: 12px;
@@ -108,7 +115,6 @@
             overflow: hidden;
             box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15);
             border: 1px solid rgba(255, 182, 193, 0.1);
-            padding: 6px 16px 6px 8px;
         }
 
         .toc-item {
@@ -134,7 +140,7 @@
             align-items: center;
             flex: 1;
             gap: 8px;
-            padding: 0 0 8px 0;
+            padding: 8px 0;
         }
 
         .frame-name {
@@ -149,10 +155,6 @@
             align-items: center;
             gap: 5px;
             line-height: 1.2;
-            justify-content: space-between;
-            border-bottom: 1px solid #4a5568;
-            vertical-align: middle;
-            padding: 0 0 5px 0px;
         }
 
         .frame-name:hover {
@@ -286,10 +288,14 @@
 </head>
 <body>
     <div class="header">
-        <p style="line-height:1">Easily find all frames on your board. New feature requests? <a href="https://forms.gle/sAaop5SotZ3WCYmA8" target="_blank" style="color:inherit">Let me know.</a></p>
+        <h1>Table of Contents</h1>
+        <p>Easily find all frames on your board</p>
         <div class="controls">
             <button class="btn btn-primary" onclick="refreshFrames()">
                 Refresh
+            </button>
+            <button class="btn btn-secondary" onclick="exportToClipboard()">
+                Export List
             </button>
         </div>
     </div>
@@ -402,11 +408,10 @@
                     <div class="toc-item">
                         <div class="toc-header">
                             <a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;">
-                                ${escapeHtml(frameName)}
-
                                 <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
+                                ${escapeHtml(frameName)}
                             </a>
                         </div>
                     </div>
@@ -421,12 +426,52 @@
             try {
                 const frame = frames.find(f => f.id === frameId);
                 if (frame) {
-                    await miro.board.viewport.zoomTo(frame);
+                    // Get current viewport to maintain zoom level
+                    const viewport = await miro.board.viewport.get();
+                    
+                    // Fixed offset to account for panel width (approximately 200px to center in visible area)
+                    const panelOffset = 200;
+                    
+                    // Create adjusted frame position
+                    const adjustedFrame = {
+                        x: frame.x + panelOffset,
+                        y: frame.y,
+                        width: frame.width,
+                        height: frame.height
+                    };
+                    
+                    await miro.board.viewport.zoomTo(adjustedFrame);
                     showStatus('Navigated to frame', 'success');
                 }
             } catch (error) {
                 console.error('Failed to navigate to frame:', error);
-                showStatus('Failed to navigate to frame', 'error');
+                // Fallback to simple zoom if the offset method fails
+                try {
+                    const frame = frames.find(f => f.id === frameId);
+                    if (frame) {
+                        await miro.board.viewport.zoomTo(frame);
+                    }
+                } catch (fallbackError) {
+                    showStatus('Failed to navigate to frame', 'error');
+                }
+            }
+        }
+
+        async function exportToClipboard() {
+            try {
+                let text = 'Table of Contents\n';
+                text += '==================\n\n';
+                
+                frames.forEach((frame, index) => {
+                    const frameName = frame.title || `Frame ${index + 1}`;
+                    text += `${index + 1}. ${frameName}\n`;
+                });
+                
+                await navigator.clipboard.writeText(text);
+                showStatus('Table of contents copied!', 'success');
+            } catch (error) {
+                console.error('Failed to copy to clipboard:', error);
+                showStatus('Failed to copy to clipboard', 'error');
             }
         }
 
