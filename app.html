@@ -93,8 +93,9 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
-            color: white;
+            background: #ff6b9d;
+            /* background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%); */
+            color: black;
             box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
         }
 
@@ -153,13 +154,15 @@
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 182, 193, 0.2);
-            padding: 12px 20px;
+            padding: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
             box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.1);
             z-index: 100;
+            flex-direction: column;
+            text-align: center;
         }
 
         .footer-logo {
@@ -188,11 +191,11 @@
             overflow: hidden;
             box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15);
             border: 1px solid rgba(255, 182, 193, 0.1);
-            padding: 6px 16px 6px 8px;
+            padding: 20px;
         }
 
         .toc-item {
-            padding: 0 0 0 10px;
+            padding: 0;
             border-bottom: 1px solid rgba(255, 182, 193, 0.1);
             transition: all 0.2s;
             position: relative;
@@ -540,7 +543,9 @@
         <p style="line-height:1">Easily find all frames on your board. Use *-* in frame names to create hierarchy. <a href="https://forms.gle/sAaop5SotZ3WCYmA8" target="_blank" style="color:inherit">New feature requests?</a></p>
         <div class="controls">
             <button class="btn btn-primary" onclick="refreshFrames()">
-                Refresh
+                <svg xmlns="http://www.w3.org/2000/svg" width="30pt" height="30pt" version="1.1" viewBox="0 0 1200 1200">
+                    <path d="m250 977.55v72.449c0 17.863-9.5312 34.371-25 43.301-15.469 8.9336-34.531 8.9336-50 0-15.469-8.9297-25-25.438-25-43.301v-200c0-13.262 5.2695-25.98 14.645-35.355s22.094-14.645 35.355-14.645h200c17.863 0 34.371 9.5312 43.301 25 8.9336 15.469 8.9336 34.531 0 50-8.9297 15.469-25.438 25-43.301 25h-86.898c76.5 61.801 182.05 100 286.9 100 70.215 0 139.19-18.484 200-53.59 60.809-35.105 111.3-85.602 146.41-146.41 35.105-60.809 53.59-129.79 53.59-200 0-17.863 9.5312-34.371 25-43.301 15.469-8.9336 34.531-8.9336 50 0 15.469 8.9297 25 25.438 25 43.301 0 276.15-223.85 500-500 500-127.45 0-255.35-45.801-350-122.45zm636.9-677.55c-76.5-61.801-182.05-100-286.9-100-106.09 0-207.83 42.145-282.84 117.16-75.012 75.016-117.16 176.76-117.16 282.84 0 17.863-9.5312 34.371-25 43.301-15.469 8.9336-34.531 8.9336-50 0-15.469-8.9297-25-25.438-25-43.301 0-276.15 223.85-500 500-500 127.45 0 255.35 45.801 350 122.45v-72.449c0-17.863 9.5312-34.371 25-43.301 15.469-8.9336 34.531-8.9336 50 0 15.469 8.9297 25 25.438 25 43.301v200c0 13.262-5.2695 25.98-14.645 35.355s-22.094 14.645-35.355 14.645h-200c-17.863 0-34.371-9.5312-43.301-25-8.9336-15.469-8.9336-34.531 0-50 8.9297-15.469 25.438-25 43.301-25z"/>
+        </svg>
             </button>
         </div>
     </div>
@@ -548,7 +553,7 @@
     <div class="tab-navigation">
         <button class="tab-btn active" onclick="switchTab('toc')">Table of Contents</button>
         <button class="tab-btn" onclick="switchTab('tips')">Tips</button>
-        <!-- <button class="tab-btn" onclick="switchTab('upgrade')">Upgrade</button> -->
+        <button class="tab-btn" onclick="switchTab('upgrade')">Upgrade</button>
     </div>
 
     <div class="content">
@@ -616,13 +621,13 @@
         </div>
 
         <!-- Upgrade Tab -->
-        <!-- <div id="upgradeTab" class="tab-content">
+        <div id="upgradeTab" class="tab-content">
             <div class="upgrade-container">
                 <div class="upgrade-header">
                     <h3>🚀 Upgrade to Pro</h3>
-                    <p>Unlock powerful features for professional teams</p>
+                    <p>Coming Soon</p>
                 </div>
-
+<!-- 
                 <div class="features-grid">
                     <div class="feature-item">
                         <div class="feature-icon">✨</div>
@@ -680,9 +685,9 @@
                     <p style="margin-top: 12px; font-size: 12px; color: #9ca3af;">
                         14-day free trial • Cancel anytime
                     </p>
-                </div>
+                </div> -->
             </div>
-        </div> -->
+        </div>
     </div>
 
     <!-- Footer -->
