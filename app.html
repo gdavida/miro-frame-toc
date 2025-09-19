@@ -30,7 +30,6 @@
             box-shadow: 0 4px 20px rgba(255, 182, 193, 0.1);
         }
 
-
         .header p {
             font-size: 12px;
             color: #6b7280;
@@ -127,6 +126,59 @@
 
         .toc-item:last-child {
             border-bottom: none;
+        }
+
+        /* Parent frame styles */
+        .parent-frame {
+            border-bottom: 1px solid rgba(255, 182, 193, 0.1);
+        }
+
+        .parent-frame:last-child {
+            border-bottom: none;
+        }
+
+        .parent-header {
+            padding: 0 0 0 10px;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .parent-header:hover {
+            background: linear-gradient(90deg, rgba(255, 182, 193, 0.1) 0%, rgba(198, 108, 253, 0.05) 100%);
+        }
+
+        .expand-icon {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .expand-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke: #4a5568;
+        }
+
+        .parent-header.expanded .expand-icon {
+            transform: rotate(90deg);
+        }
+
+        /* Child frames container */
+        .children-container {
+            display: none;
+        }
+
+        .children-container.expanded {
+            display: block;
+        }
+
+        .child-frame {
+            padding-left: 40px;
         }
 
         .toc-header {
@@ -307,6 +359,7 @@
     <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
     <script>
         let frames = [];
+        let expandedParents = new Set();
 
         // Initialize the app
         async function initApp() {
@@ -372,15 +425,72 @@
                     return;
                 }
 
-                // Always sort alphabetically
-                frames.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-
                 renderTableOfContents();
                 showStatus(`Found ${frames.length} frame${frames.length !== 1 ? 's' : ''}`, 'success');
 
             } catch (error) {
                 console.error('Failed to refresh frames:', error);
                 showError('Failed to load frames. Please try again.');
+            }
+        }
+
+        function parseFrameHierarchy(frames) {
+            const hierarchy = {
+                parents: [],
+                standalone: [],
+                processed: new Set()
+            };
+
+            // First pass: identify parent frames
+            frames.forEach(frame => {
+                const title = frame.title || '';
+                
+                // Skip if already processed
+                if (hierarchy.processed.has(frame.id)) return;
+                
+                // Check if this frame has children (frames starting with ---)
+                const baseName = title.replace(/\s*\(.*?\)\s*$/, '').trim(); // Remove any parenthetical
+                const children = frames.filter(f => {
+                    const childTitle = f.title || '';
+                    // Match frames that start with --- and contain the parent name
+                    return childTitle.startsWith('---') && 
+                           childTitle.toLowerCase().includes(baseName.toLowerCase());
+                });
+
+                if (children.length > 0) {
+                    // This is a parent frame
+                    hierarchy.parents.push({
+                        frame: frame,
+                        children: children
+                    });
+                    hierarchy.processed.add(frame.id);
+                    children.forEach(child => hierarchy.processed.add(child.id));
+                }
+            });
+
+            // Second pass: add remaining frames as standalone
+            frames.forEach(frame => {
+                if (!hierarchy.processed.has(frame.id)) {
+                    hierarchy.standalone.push(frame);
+                }
+            });
+
+            return hierarchy;
+        }
+
+        function toggleParent(frameId) {
+            if (expandedParents.has(frameId)) {
+                expandedParents.delete(frameId);
+            } else {
+                expandedParents.add(frameId);
+            }
+            
+            const header = document.querySelector(`[data-parent-id="${frameId}"]`);
+            const container = document.querySelector(`[data-children-id="${frameId}"]`);
+            
+            if (header && container) {
+                header.classList.toggle('expanded');
+                container.classList.toggle('expanded');
             }
         }
 
@@ -392,9 +502,79 @@
                 return;
             }
 
+            const hierarchy = parseFrameHierarchy(frames);
             let html = '<div class="toc-list">';
             
-            frames.forEach((frame, index) => {
+            // Sort parents alphabetically
+            hierarchy.parents.sort((a, b) => 
+                (a.frame.title || '').localeCompare(b.frame.title || '')
+            );
+            
+            // Render parent frames with children
+            hierarchy.parents.forEach(parent => {
+                const parentId = parent.frame.id;
+                const parentName = parent.frame.title || 'Untitled Frame';
+                const isExpanded = expandedParents.has(parentId);
+                
+                html += `
+                    <div class="parent-frame">
+                        <div class="parent-header ${isExpanded ? 'expanded' : ''}" 
+                             data-parent-id="${parentId}"
+                             onclick="toggleParent('${parentId}')">
+                            <span class="expand-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                                    <path d="M9 6l6 6-6 6"/>
+                                </svg>
+                            </span>
+                            <div class="toc-header">
+                                <a href="#" class="frame-name" onclick="event.stopPropagation(); navigateToFrame('${parentId}'); return false;">
+                                    ${escapeHtml(parentName)}
+                                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="children-container ${isExpanded ? 'expanded' : ''}" 
+                             data-children-id="${parentId}">
+                `;
+                
+                // Sort children alphabetically
+                parent.children.sort((a, b) => 
+                    (a.title || '').localeCompare(b.title || '')
+                );
+                
+                parent.children.forEach(child => {
+                    const childName = child.title || 'Untitled Frame';
+                    const displayName = childName.replace(/^---+\s*/, '');
+                    
+                    html += `
+                        <div class="toc-item child-frame">
+                            <div class="toc-header">
+                                <a href="#" class="frame-name" onclick="navigateToFrame('${child.id}'); return false;">
+                                    ${escapeHtml(displayName)}
+                                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Sort standalone frames alphabetically
+            hierarchy.standalone.sort((a, b) => 
+                (a.title || '').localeCompare(b.title || '')
+            );
+            
+            // Render standalone frames
+            hierarchy.standalone.forEach((frame, index) => {
                 const frameId = frame.id;
                 const frameName = frame.title || `Frame ${index + 1}`;
                 
@@ -403,7 +583,6 @@
                         <div class="toc-header">
                             <a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;">
                                 ${escapeHtml(frameName)}
-
                                 <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
