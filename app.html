@@ -20,6 +20,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         .header {
@@ -41,6 +42,40 @@
             display: flex;
             gap: 12px;
             align-items: center;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 182, 193, 0.15);
+        }
+
+        .tab-btn {
+            padding: 8px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            background: transparent;
+            color: #6b7280;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.8);
+            color: #7c3aed; /* Darker purple for better contrast */
         }
 
         .btn {
@@ -70,13 +105,13 @@
 
         .btn-secondary {
             background: rgba(255, 255, 255, 0.9);
-            color: #c66cfd;
-            border: 1.5px solid rgba(198, 108, 253, 0.3);
+            color: #7c3aed; /* Darker purple for better contrast */
+            border: 1.5px solid rgba(124, 58, 237, 0.3);
         }
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 1);
-            border-color: rgba(198, 108, 253, 0.5);
+            border-color: rgba(124, 58, 237, 0.5);
             transform: translateY(-1px);
         }
 
@@ -84,6 +119,15 @@
             flex: 1;
             overflow-y: auto;
             padding: 16px;
+            padding-bottom: 70px; /* Space for footer */
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .content::-webkit-scrollbar {
@@ -98,6 +142,43 @@
         .content::-webkit-scrollbar-thumb {
             background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
             border-radius: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 182, 193, 0.2);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.1);
+            z-index: 100;
+        }
+
+        .footer-logo {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
+
+        .footer-text {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 400;
         }
 
         .toc-list {
@@ -179,7 +260,7 @@
         }
 
         .frame-name:hover {
-            color: #c66cfd;
+            color: #7c3aed; /* Darker purple for better contrast */
             transform: translateX(2px);
         }
 
@@ -188,6 +269,153 @@
             height: 12px;
             opacity: 0.6;
             flex-shrink: 0;
+        }
+
+        /* Tips Section Styles */
+        .tips-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15);
+            border: 1px solid rgba(255, 182, 193, 0.1);
+        }
+
+        .tips-container h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tip-card {
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.05) 0%, rgba(198, 108, 253, 0.03) 100%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 182, 193, 0.1);
+        }
+
+        .tip-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .tip-content {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .code-example {
+            font-family: 'SF Mono', Monaco, monospace;
+            background: rgba(198, 108, 253, 0.08);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 12px;
+            color: #7c3aed; /* Darker purple for better contrast */
+            border: 1px solid rgba(198, 108, 253, 0.2);
+        }
+
+        /* Upgrade Section Styles */
+        .upgrade-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15);
+            border: 1px solid rgba(255, 182, 193, 0.1);
+        }
+
+        .upgrade-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .upgrade-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .upgrade-header p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .features-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.05) 0%, rgba(198, 108, 253, 0.03) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 182, 193, 0.1);
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .feature-content h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 4px;
+        }
+
+        .feature-content p {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .upgrade-cta {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .btn-upgrade {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.5);
         }
 
         .empty-state {
@@ -273,7 +501,7 @@
             align-items: center;
             justify-content: center;
             padding: 60px;
-            color: #c66cfd;
+            color: #7c3aed; /* Darker purple for better contrast */
             font-weight: 500;
         }
 
@@ -317,20 +545,179 @@
         </div>
     </div>
 
+    <div class="tab-navigation">
+        <button class="tab-btn active" onclick="switchTab('toc')">Table of Contents</button>
+        <button class="tab-btn" onclick="switchTab('tips')">Tips</button>
+        <!-- <button class="tab-btn" onclick="switchTab('upgrade')">Upgrade</button> -->
+    </div>
+
     <div class="content">
-        <div id="statusMessage"></div>
-        <div id="tocContainer">
-            <div class="loading">
-                <div class="spinner"></div>
-                <span>Loading frames...</span>
+        <!-- Table of Contents Tab -->
+        <div id="tocTab" class="tab-content active">
+            <div id="statusMessage"></div>
+            <div id="tocContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>Loading frames...</span>
+                </div>
             </div>
         </div>
+
+        <!-- Tips Tab -->
+        <div id="tipsTab" class="tab-content">
+            <div class="tips-container">
+                <h3>📚 How to Use Frame Hierarchy</h3>
+                
+                <div class="tip-card">
+                    <div class="tip-title">Creating Basic Hierarchy</div>
+                    <div class="tip-content">
+                        Use the special separator <strong>*-*</strong> in your frame names to create nested hierarchies. This helps organize complex boards with many frames.
+                    </div>
+                    <div class="code-example">
+                        Project *-* Planning *-* Q1 Goals
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-title">Multi-Level Organization</div>
+                    <div class="tip-content">
+                        Create up to 3 levels of hierarchy for complex organizational structures. Each level is visually indented and marked with a different indicator.
+                    </div>
+                    <div class="code-example">
+                        Department *-* Team *-* Sub-team
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-title">Examples</div>
+                    <div class="tip-content">
+                        <strong>Project Structure:</strong>
+                        <div class="code-example">Design *-* Wireframes</div>
+                        <div class="code-example">Design *-* Mockups</div>
+                        <div class="code-example">Development *-* Frontend</div>
+                        <div class="code-example">Development *-* Backend *-* APIs</div>
+                        
+                        <strong>Team Organization:</strong>
+                        <div class="code-example">Marketing *-* Campaigns *-* Q1</div>
+                        <div class="code-example">Marketing *-* Content *-* Blog</div>
+                    </div>
+                </div>
+
+                <div class="tip-card">
+                    <div class="tip-title">Best Practices</div>
+                    <div class="tip-content">
+                        • Keep hierarchy names concise and descriptive<br>
+                        • Use consistent naming conventions across your board<br>
+                        • Limit hierarchy to 3 levels for better readability<br>
+                        • Group related frames under common parent categories
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upgrade Tab -->
+        <!-- <div id="upgradeTab" class="tab-content">
+            <div class="upgrade-container">
+                <div class="upgrade-header">
+                    <h3>🚀 Upgrade to Pro</h3>
+                    <p>Unlock powerful features for professional teams</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">✨</div>
+                        <div class="feature-content">
+                            <h4>Advanced Search & Filtering</h4>
+                            <p>Search frames by content, tags, and custom properties. Filter by date, creator, or status.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">🎨</div>
+                        <div class="feature-content">
+                            <h4>Custom Themes & Branding</h4>
+                            <p>Personalize the interface with your brand colors, logo, and custom CSS styling.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-content">
+                            <h4>Frame Analytics</h4>
+                            <p>Track frame usage, view history, and get insights on collaboration patterns.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">🔗</div>
+                        <div class="feature-content">
+                            <h4>Deep Linking & Bookmarks</h4>
+                            <p>Create shareable deep links to specific frames and manage bookmarks for quick access.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">🤖</div>
+                        <div class="feature-content">
+                            <h4>AI-Powered Organization</h4>
+                            <p>Automatically suggest frame hierarchies and groupings based on content analysis.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">📥</div>
+                        <div class="feature-content">
+                            <h4>Export & Documentation</h4>
+                            <p>Export table of contents to PDF, Markdown, or integrate with documentation tools.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upgrade-cta">
+                    <button class="btn-upgrade" onclick="handleUpgrade()">
+                        Upgrade Now - $9.99/month
+                    </button>
+                    <p style="margin-top: 12px; font-size: 12px; color: #9ca3af;">
+                        14-day free trial • Cancel anytime
+                    </p>
+                </div>
+            </div>
+        </div> -->
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-logo">FT</div>
+        <span class="footer-text">Frame TOC Pro © 2024 • Organize your Miro boards effortlessly</span>
     </div>
 
     <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
     <script>
         let frames = [];
         const HIERARCHY_SEPARATOR = '*-*';
+        let currentTab = 'toc';
+
+        // Tab switching
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Refresh frames if switching to TOC tab
+            if (tabName === 'toc') {
+                refreshFrames();
+            }
+        }
 
         // Initialize the app
         async function initApp() {
@@ -377,6 +764,8 @@
         }
 
         async function refreshFrames() {
+            if (currentTab !== 'toc') return;
+            
             try {
                 const container = document.getElementById('tocContainer');
                 container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading frames...</span></div>';
@@ -453,10 +842,10 @@
         }
 
         function getHierarchyIndicator(level) {
-            if (level === 1) return '›';
+            if (level === 1) return '▸';
             if (level === 2) return '•';
             if (level === 3) return '◦';
-            return '›'; // Default for any deeper levels
+            return '▸'; // Default for any deeper levels
         }
 
         function renderTableOfContents() {
@@ -551,6 +940,10 @@
                 console.error('Failed to navigate to frame:', error);
                 showStatus('Failed to navigate to frame', 'error');
             }
+        }
+
+        function handleUpgrade() {
+            showStatus('Coming soon! Pro features will be available shortly.', 'success');
         }
 
         function showEmptyState() {
