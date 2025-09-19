@@ -119,10 +119,13 @@
         }
 
         .toc-item {
-            padding: 0 0 0 10px;
+            padding: 0 0 8px 10px;
             border-bottom: 1px solid rgba(255, 182, 193, 0.1);
             transition: all 0.2s;
             position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* Nested list items */
@@ -159,13 +162,6 @@
         .toc-list > .toc-item:last-child,
         .toc-list > .toc-item:last-child .toc-sublist .toc-item:last-child {
             border-bottom: none;
-        }
-
-        .toc-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 0 0 8px 0;
         }
 
         /* Hierarchy indicators */
@@ -511,8 +507,7 @@
                     const frameName = item.displayName;
                     const indicator = level > 0 ? getHierarchyIndicator(level) : '';
                     
-                    html += '<li class="toc-item">';
-                    html += '<div class="toc-header">';
+                    html += `<li class="toc-item" data-frame-id="${frameId}">`;
                     
                     if (indicator) {
                         html += `<span class="hierarchy-indicator" aria-hidden="true">${indicator}</span>`;
@@ -524,7 +519,6 @@
                                 <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                             </svg>`;
                     html += '</a>';
-                    html += '</div>';
                     
                     // Add nested children if they exist
                     if (item.children && item.children.length > 0) {
