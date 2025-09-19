@@ -422,8 +422,12 @@
                 const frame = frames.find(f => f.id === frameId);
                 if (frame) {
                     // Calculate the panel offset
-                    const PANEL_WIDTH = 368; // Width of the TOC panel
-                    const offsetX = -PANEL_WIDTH / 2; // Shift left by half the panel width
+                    // The panel is 368px wide, but we need to shift MORE to account for centering
+                    const PANEL_WIDTH = 368;
+                    // We want to shift the frame left so it's centered in the remaining viewport
+                    // The remaining viewport is (total width - panel width), so we shift by half the panel width
+                    // But we need to shift MORE to truly center it in the visible area
+                    const offsetX = -PANEL_WIDTH;
                     
                     // Create a modified frame object with adjusted position
                     const adjustedFrame = {
