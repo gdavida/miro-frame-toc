@@ -421,9 +421,50 @@
             try {
                 const frame = frames.find(f => f.id === frameId);
                 if (frame) {
-                    // Simple navigation without offset compensation
-                    // Users can pan/zoom as needed, which is natural in Miro
+                    // First, zoom to the frame to get the natural zoom level
                     await miro.board.viewport.zoomTo([frame]);
+                    
+                    // Get the resulting viewport after zoom
+                    const viewport = await miro.board.viewport.get();
+                    
+                    // Calculate how much of the frame width is visible in the viewport
+                    // This gives us the zoom factor
+                    const zoomFactor = viewport.width / frame.width;
+                    
+                    // Panel width constant
+                    const PANEL_WIDTH = 368;
+                    
+                    // Calculate dynamic offset based on the zoom level
+                    // When zoomed out (wider frames), we need less offset
+                    // When zoomed in (narrower frames), we need more offset
+                    const dynamicOffset = PANEL_WIDTH / zoomFactor;
+                    
+                    // Apply a scaling factor to fine-tune the offset
+                    // Wider frames (aspect ratio > 1.5) need less compensation
+                    const aspectRatio = frame.width / frame.height;
+                    let offsetMultiplier = 1;
+                    
+                    if (aspectRatio > 2) {
+                        offsetMultiplier = 0.5;  // Very wide frames: use half offset
+                    } else if (aspectRatio > 1.5) {
+                        offsetMultiplier = 0.7;  // Wide frames: use 70% offset
+                    } else if (aspectRatio < 0.5) {
+                        offsetMultiplier = 1.2;  // Very narrow frames: use 120% offset
+                    }
+                    
+                    const finalOffset = -dynamicOffset * offsetMultiplier;
+                    
+                    // Apply the calculated offset
+                    await miro.board.viewport.set({
+                        viewport: {
+                            x: viewport.x + finalOffset,
+                            y: viewport.y,
+                            width: viewport.width,
+                            height: viewport.height
+                        },
+                        animationDurationInMs: 300
+                    });
+                    
                     showStatus('Navigated to frame', 'success');
                 }
             } catch (error) {
