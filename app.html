@@ -133,7 +133,7 @@
             align-items: center;
             flex: 1;
             gap: 8px;
-            padding: 8px 0;
+            padding: 0 0 8px 0;
         }
 
         .frame-name {
@@ -148,6 +148,10 @@
             align-items: center;
             gap: 5px;
             line-height: 1.2;
+            justify-content: space-between;
+            border-bottom: 1px solid #4a5568;
+            vertical-align: middle;
+            padding: 0 0 5px 0px;
         }
 
         .frame-name:hover {
@@ -397,10 +401,11 @@
                     <div class="toc-item">
                         <div class="toc-header">
                             <a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;">
+                                ${escapeHtml(frameName)}
+
                                 <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
-                                ${escapeHtml(frameName)}
                             </a>
                         </div>
                     </div>
