@@ -108,41 +108,28 @@
             box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15);
             border: 1px solid rgba(255, 182, 193, 0.1);
             padding: 6px 16px 6px 8px;
-            list-style: none;
-            margin: 0;
-        }
-
-        .toc-list ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
         }
 
         .toc-item {
-            padding: 0 0 8px 10px;
+            padding: 0 0 0 10px;
             border-bottom: 1px solid rgba(255, 182, 193, 0.1);
             transition: all 0.2s;
             position: relative;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
 
-        /* Nested list items */
-        .toc-sublist {
-            margin: 0;
-            padding: 0;
-        }
-
-        .toc-sublist .toc-item {
+        /* Hierarchy levels */
+        .toc-item.level-1 {
             padding-left: 30px;
         }
 
-        .toc-sublist .toc-sublist .toc-item {
+        .toc-item.level-2 {
             padding-left: 50px;
         }
 
-        .toc-sublist .toc-sublist .toc-sublist .toc-item {
+        .toc-item.level-3 {
             padding-left: 70px;
         }
 
@@ -154,14 +141,12 @@
             border-bottom: none;
         }
 
-        /* Remove border from last item in sublists */
-        .toc-sublist .toc-item:last-child {
-            border-bottom: 1px solid rgba(255, 182, 193, 0.1);
-        }
-
-        .toc-list > .toc-item:last-child,
-        .toc-list > .toc-item:last-child .toc-sublist .toc-item:last-child {
-            border-bottom: none;
+        .toc-header {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 8px;
+            padding: 0 0 8px 0;
         }
 
         /* Hierarchy indicators */
@@ -421,69 +406,57 @@
         }
 
         function parseFrameHierarchy(frames) {
-            // Build a tree structure for proper nesting
-            const tree = [];
-            const frameMap = new Map();
+            const hierarchicalFrames = [];
             
-            // First, create all frame objects
             frames.forEach(frame => {
                 const title = frame.title || '';
                 
                 if (title.includes(HIERARCHY_SEPARATOR)) {
+                    // This frame has hierarchy
                     const parts = title.split(HIERARCHY_SEPARATOR).map(p => p.trim());
-                    frameMap.set(title, {
+                    const level = parts.length - 1; // Last part is the actual name
+                    const displayName = parts[parts.length - 1];
+                    const parentPath = parts.slice(0, -1).join(HIERARCHY_SEPARATOR);
+                    
+                    hierarchicalFrames.push({
                         frame: frame,
-                        displayName: parts[parts.length - 1],
-                        parts: parts,
-                        children: []
+                        displayName: displayName,
+                        level: level,
+                        parentPath: parentPath,
+                        fullPath: title,
+                        sortKey: title.toLowerCase()
                     });
                 } else {
-                    tree.push({
+                    // Regular frame without hierarchy
+                    hierarchicalFrames.push({
                         frame: frame,
                         displayName: title,
-                        children: []
+                        level: 0,
+                        parentPath: '',
+                        fullPath: title,
+                        sortKey: title.toLowerCase()
                     });
                 }
             });
             
-            // Build hierarchy
-            frameMap.forEach((item, key) => {
-                if (item.parts.length === 2) {
-                    // Direct child - add to root
-                    tree.push(item);
-                } else {
-                    // Nested child - find parent
-                    let parentPath = item.parts.slice(0, -1).join(HIERARCHY_SEPARATOR);
-                    let parent = frameMap.get(parentPath);
-                    
-                    if (parent) {
-                        parent.children.push(item);
-                    } else {
-                        // Parent doesn't exist as a frame, add to root
-                        tree.push(item);
-                    }
+            // Sort frames alphabetically, maintaining hierarchy
+            hierarchicalFrames.sort((a, b) => {
+                // If they share the same parent path, sort by display name
+                if (a.parentPath === b.parentPath) {
+                    return a.displayName.localeCompare(b.displayName);
                 }
+                // Otherwise sort by full path to keep hierarchies together
+                return a.sortKey.localeCompare(b.sortKey);
             });
             
-            // Sort function for items and their children
-            const sortItems = (items) => {
-                items.sort((a, b) => a.displayName.localeCompare(b.displayName));
-                items.forEach(item => {
-                    if (item.children.length > 0) {
-                        sortItems(item.children);
-                    }
-                });
-            };
-            
-            sortItems(tree);
-            return tree;
+            return hierarchicalFrames;
         }
 
         function getHierarchyIndicator(level) {
             if (level === 1) return '›';
             if (level === 2) return '•';
             if (level === 3) return '◦';
-            return '›';
+            return '›'; // Default for any deeper levels
         }
 
         function renderTableOfContents() {
@@ -494,45 +467,34 @@
                 return;
             }
 
-            const tree = parseFrameHierarchy(frames);
+            const hierarchicalFrames = parseFrameHierarchy(frames);
+            let html = '<div class="toc-list">';
             
-            // Build nested list HTML
-            function buildListHTML(items, level = 0) {
-                if (items.length === 0) return '';
+            hierarchicalFrames.forEach((item, index) => {
+                const frameId = item.frame.id;
+                const frameName = item.displayName || `Frame ${index + 1}`;
+                const level = item.level;
                 
-                let html = level === 0 ? '<ul class="toc-list">' : '<ul class="toc-sublist">';
+                const levelClass = level > 0 ? `level-${Math.min(level, 3)}` : '';
+                const indicator = level > 0 ? getHierarchyIndicator(level) : '';
                 
-                items.forEach(item => {
-                    const frameId = item.frame.id;
-                    const frameName = item.displayName;
-                    const indicator = level > 0 ? getHierarchyIndicator(level) : '';
-                    
-                    html += `<li class="toc-item" data-frame-id="${frameId}">`;
-                    
-                    if (indicator) {
-                        html += `<span class="hierarchy-indicator" aria-hidden="true">${indicator}</span>`;
-                    }
-                    
-                    html += `<a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;" aria-label="Navigate to ${escapeHtml(frameName)}">`;
-                    html += escapeHtml(frameName);
-                    html += `<svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                            </svg>`;
-                    html += '</a>';
-                    
-                    // Add nested children if they exist
-                    if (item.children && item.children.length > 0) {
-                        html += buildListHTML(item.children, level + 1);
-                    }
-                    
-                    html += '</li>';
-                });
-                
-                html += '</ul>';
-                return html;
-            }
+                html += `
+                    <div class="toc-item ${levelClass}">
+                        <div class="toc-header">
+                            ${indicator ? `<span class="hierarchy-indicator">${indicator}</span>` : ''}
+                            <a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;">
+                                ${escapeHtml(frameName)}
+                                <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
             
-            container.innerHTML = buildListHTML(tree);
+            html += '</div>';
+            container.innerHTML = html;
         }
 
         async function navigateToFrame(frameId) {
