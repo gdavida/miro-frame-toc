@@ -25,18 +25,11 @@
         .header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 16px 20px 14px 20px;
+            padding: 0px 20px 14px 25px;
             border-bottom: 1px solid rgba(255, 182, 193, 0.2);
             box-shadow: 0 4px 20px rgba(255, 182, 193, 0.1);
         }
 
-        .header h1 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 4px;
-            letter-spacing: -0.3px;
-        }
 
         .header p {
             font-size: 12px;
@@ -115,6 +108,7 @@
             overflow: hidden;
             box-shadow: 0 10px 40px rgba(255, 182, 193, 0.15);
             border: 1px solid rgba(255, 182, 193, 0.1);
+            padding: 6px 16px 6px 8px;
         }
 
         .toc-item {
@@ -135,49 +129,12 @@
             border-bottom: none;
         }
 
-        .hierarchy-parent {
-            background: rgba(198, 108, 253, 0.05);
-            border-bottom: 1px solid rgba(198, 108, 253, 0.15);
-        }
-
-        .hierarchy-parent:hover {
-            background: rgba(198, 108, 253, 0.1);
-        }
-
-        .hierarchy-child {
-            margin-left: 20px;
-            border-left: 2px solid rgba(198, 108, 253, 0.2);
-            padding-left: 15px;
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .hierarchy-child:hover {
-            background: linear-gradient(90deg, rgba(255, 182, 193, 0.15) 0%, rgba(198, 108, 253, 0.08) 100%);
-            border-left-color: rgba(198, 108, 253, 0.4);
-        }
-
-        .hierarchy-arrow {
-            font-size: 10px;
-            color: #c66cfd;
-            margin-right: 8px;
-            font-weight: bold;
-        }
-
-        .group-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #8b5cf6;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 11px;
-        }
-
         .toc-header {
             display: flex;
             align-items: center;
             flex: 1;
             gap: 8px;
-            padding: 8px 0;
+            padding: 0 0 8px 0;
         }
 
         .frame-name {
@@ -192,6 +149,10 @@
             align-items: center;
             gap: 5px;
             line-height: 1.2;
+            justify-content: space-between;
+            border-bottom: 1px solid #4a5568;
+            vertical-align: middle;
+            padding: 0 0 5px 0px;
         }
 
         .frame-name:hover {
@@ -325,14 +286,10 @@
 </head>
 <body>
     <div class="header">
-        <h1>Table of Contents</h1>
-        <p>Easily find all frames on your board</p>
+        <p style="line-height:1">Easily find all frames on your board. New feature requests? <a href="https://forms.gle/sAaop5SotZ3WCYmA8" target="_blank" style="color:inherit">Let me know.</a></p>
         <div class="controls">
             <button class="btn btn-primary" onclick="refreshFrames()">
                 Refresh
-            </button>
-            <button class="btn btn-secondary" onclick="exportToClipboard()">
-                Export List
             </button>
         </div>
     </div>
@@ -445,10 +402,11 @@
                     <div class="toc-item">
                         <div class="toc-header">
                             <a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;">
+                                ${escapeHtml(frameName)}
+
                                 <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
-                                ${escapeHtml(frameName)}
                             </a>
                         </div>
                     </div>
@@ -463,52 +421,55 @@
             try {
                 const frame = frames.find(f => f.id === frameId);
                 if (frame) {
-                    // Get current viewport to maintain zoom level
+                    // First, zoom to the frame to get the natural zoom level
+                    await miro.board.viewport.zoomTo([frame]);
+                    
+                    // Get the resulting viewport after zoom
                     const viewport = await miro.board.viewport.get();
                     
-                    // Fixed offset to account for panel width (approximately 200px to center in visible area)
-                    const panelOffset = 200;
+                    // Calculate how much of the frame width is visible in the viewport
+                    // This gives us the zoom factor
+                    const zoomFactor = viewport.width / frame.width;
                     
-                    // Create adjusted frame position
-                    const adjustedFrame = {
-                        x: frame.x + panelOffset,
-                        y: frame.y,
-                        width: frame.width,
-                        height: frame.height
-                    };
+                    // Panel width constant
+                    const PANEL_WIDTH = 368;
                     
-                    await miro.board.viewport.zoomTo(adjustedFrame);
+                    // Calculate dynamic offset based on the zoom level
+                    // When zoomed out (wider frames), we need less offset
+                    // When zoomed in (narrower frames), we need more offset
+                    const dynamicOffset = PANEL_WIDTH / zoomFactor;
+                    
+                    // Apply a scaling factor to fine-tune the offset
+                    // Wider frames (aspect ratio > 1.5) need less compensation
+                    const aspectRatio = frame.width / frame.height;
+                    let offsetMultiplier = 1;
+                    
+                    if (aspectRatio > 2) {
+                        offsetMultiplier = 0.5;  // Very wide frames: use half offset
+                    } else if (aspectRatio > 1.5) {
+                        offsetMultiplier = 0.7;  // Wide frames: use 70% offset
+                    } else if (aspectRatio < 0.5) {
+                        offsetMultiplier = 1.2;  // Very narrow frames: use 120% offset
+                    }
+                    
+                    const finalOffset = -dynamicOffset * offsetMultiplier;
+                    
+                    // Apply the calculated offset
+                    await miro.board.viewport.set({
+                        viewport: {
+                            x: viewport.x + finalOffset,
+                            y: viewport.y,
+                            width: viewport.width,
+                            height: viewport.height
+                        },
+                        animationDurationInMs: 300
+                    });
+                    
                     showStatus('Navigated to frame', 'success');
                 }
             } catch (error) {
                 console.error('Failed to navigate to frame:', error);
-                // Fallback to simple zoom if the offset method fails
-                try {
-                    const frame = frames.find(f => f.id === frameId);
-                    if (frame) {
-                        await miro.board.viewport.zoomTo(frame);
-                    }
-                } catch (fallbackError) {
-                    showStatus('Failed to navigate to frame', 'error');
-                }
-            }
-        }
-
-        async function exportToClipboard() {
-            try {
-                let text = 'Table of Contents\n';
-                text += '==================\n\n';
-                
-                frames.forEach((frame, index) => {
-                    const frameName = frame.title || `Frame ${index + 1}`;
-                    text += `${index + 1}. ${frameName}\n`;
-                });
-                
-                await navigator.clipboard.writeText(text);
-                showStatus('Table of contents copied!', 'success');
-            } catch (error) {
-                console.error('Failed to copy to clipboard:', error);
-                showStatus('Failed to copy to clipboard', 'error');
+                showStatus('Failed to navigate to frame', 'error');
             }
         }
 
