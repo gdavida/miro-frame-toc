@@ -52,10 +52,11 @@
             background: rgba(255, 255, 255, 0.5);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 182, 193, 0.15);
+            justify-content: center;
         }
 
         .tab-btn {
-            padding: 8px 20px;
+            padding: 8px 10px;
             border-radius: 12px;
             border: none;
             font-size: 13px;
@@ -65,6 +66,7 @@
             background: transparent;
             color: #6b7280;
             position: relative;
+            width: 33%;
         }
 
         .tab-btn.active {
@@ -92,14 +94,15 @@
             gap: 5px;
         }
 
-        .btn-primary {
-            background: #ff6b9d;
+        .btn-refresh {
+            background: black;
             /* background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%); */
-            color: black;
-            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            border-radius: 50%;
+            border: 0;
+            padding: 6px;
         }
 
-        .btn-primary:hover {
+        .btn-refresh:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
         }
@@ -275,6 +278,13 @@
         }
 
         /* Tips Section Styles */
+
+        .content-divider-line {
+            border-top: 1px solid #cbced2;
+            padding: 0 0 20px 0;
+            width: 310px;
+        }
+
         .tips-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -540,10 +550,10 @@
 </head>
 <body>
     <div class="header">
-        <p style="line-height:1">Easily find all frames on your board. Use *-* in frame names to create hierarchy. <a href="https://forms.gle/sAaop5SotZ3WCYmA8" target="_blank" style="color:inherit">New feature requests?</a></p>
+        <p>Easily find all frames on your board.</p>
         <div class="controls">
-            <button class="btn btn-primary" onclick="refreshFrames()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30pt" height="30pt" version="1.1" viewBox="0 0 1200 1200">
+            <button class="btn-refresh" onclick="refreshFrames()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20pt" height="20pt" version="1.1" viewBox="0 0 1200 1200" fill="white">
                     <path d="m250 977.55v72.449c0 17.863-9.5312 34.371-25 43.301-15.469 8.9336-34.531 8.9336-50 0-15.469-8.9297-25-25.438-25-43.301v-200c0-13.262 5.2695-25.98 14.645-35.355s22.094-14.645 35.355-14.645h200c17.863 0 34.371 9.5312 43.301 25 8.9336 15.469 8.9336 34.531 0 50-8.9297 15.469-25.438 25-43.301 25h-86.898c76.5 61.801 182.05 100 286.9 100 70.215 0 139.19-18.484 200-53.59 60.809-35.105 111.3-85.602 146.41-146.41 35.105-60.809 53.59-129.79 53.59-200 0-17.863 9.5312-34.371 25-43.301 15.469-8.9336 34.531-8.9336 50 0 15.469 8.9297 25 25.438 25 43.301 0 276.15-223.85 500-500 500-127.45 0-255.35-45.801-350-122.45zm636.9-677.55c-76.5-61.801-182.05-100-286.9-100-106.09 0-207.83 42.145-282.84 117.16-75.012 75.016-117.16 176.76-117.16 282.84 0 17.863-9.5312 34.371-25 43.301-15.469 8.9336-34.531 8.9336-50 0-15.469-8.9297-25-25.438-25-43.301 0-276.15 223.85-500 500-500 127.45 0 255.35 45.801 350 122.45v-72.449c0-17.863 9.5312-34.371 25-43.301 15.469-8.9336 34.531-8.9336 50 0 15.469 8.9297 25 25.438 25 43.301v200c0 13.262-5.2695 25.98-14.645 35.355s-22.094 14.645-35.355 14.645h-200c-17.863 0-34.371-9.5312-43.301-25-8.9336-15.469-8.9336-34.531 0-50 8.9297-15.469 25.438-25 43.301-25z"/>
         </svg>
             </button>
@@ -571,38 +581,38 @@
         <!-- Tips Tab -->
         <div id="tipsTab" class="tab-content">
             <div class="tips-container">
-                <h3>📚 How to Use Frame Hierarchy</h3>
+                <h3>📚 How to Use</h3>
                 
                 <div class="tip-card">
-                    <div class="tip-title">Creating Basic Hierarchy</div>
+                    <div class="tip-title">The Basics</div>
                     <div class="tip-content">
-                        Use the special separator <strong>*-*</strong> in your frame names to create nested hierarchies. This helps organize complex boards with many frames.
+                        <p>Each frame becomes a clickable link that navigates directly to that frame on your board.</p>
                     </div>
-                        <p style="margin-top: 12px; font-size: 11px; color: #9ca3af;">
-                            Each frame becomes a clickable link that navigates directly to that frame on your board.
-                        </p>
-                    <div class="code-example">
-                        Project *-* Planning *-* Q1 Goals
+                </div>
+                <div class="tip-card">
+                    <div class="tip-title">Hierarchy</div>
+                    <div class="tip-content">
+                        <p>Use the special separator <strong>*-*</strong> in your frame names to create nested hierarchies. This helps organize complex boards with related frames.</p>
                     </div>
                 </div>
 
-
+<div class="content-divider-line"></div>
 <div class="tip-card">
                     <div class="tip-title">Examples</div>
                     <div class="tip-content">
                         <strong>Input (Frame Names):</strong>
-                        <div class="code-example">Contractors</div>
-                        <div class="code-example">Contractors *-* Alanna</div>
-                        <div class="code-example">Contractors *-* Anna - Design/UX</div>
-                        <div class="code-example">Tech Stack *-* CRM</div>
-                        <div class="code-example">Tech Stack *-* Internal Tools</div>
-                        
+                        <div class="code-example">Landing Pages</div>
+                        <div class="code-example">Landing Pages *-*Brain Dump</div>
+                        <div class="code-example">Landing Pages *-* Conference</div>
+                        <div class="code-example">Landing Pages*-*Product Release</div>
+                        <div class="code-example">Landing Pages *-* Webinar</div>
+                        <br><br>
                         <strong>Output (Table of Contents):</strong>
                         <div class="toc-list" style="margin-top: 12px;">
                             <div class="toc-item">
                                 <div class="toc-header">
                                     <a href="#" class="frame-name" onclick="return false;">
-                                        Contractors
+                                        Landing Pages
                                         <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                         </svg>
@@ -613,7 +623,7 @@
                                 <div class="toc-header">
                                     <span class="hierarchy-indicator">▸</span>
                                     <a href="#" class="frame-name" onclick="return false;">
-                                        Alanna
+                                        Brain Dump
                                         <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                         </svg>
@@ -624,17 +634,7 @@
                                 <div class="toc-header">
                                     <span class="hierarchy-indicator">▸</span>
                                     <a href="#" class="frame-name" onclick="return false;">
-                                        Anna - Design/UX
-                                        <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="toc-item">
-                                <div class="toc-header">
-                                    <a href="#" class="frame-name" onclick="return false;">
-                                        Tech Stack
+                                        Conference
                                         <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                         </svg>
@@ -645,7 +645,7 @@
                                 <div class="toc-header">
                                     <span class="hierarchy-indicator">▸</span>
                                     <a href="#" class="frame-name" onclick="return false;">
-                                        CRM
+                                        Product Release
                                         <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                         </svg>
@@ -656,7 +656,7 @@
                                 <div class="toc-header">
                                     <span class="hierarchy-indicator">▸</span>
                                     <a href="#" class="frame-name" onclick="return false;">
-                                        Internal Tools
+                                        Webinar
                                         <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                         </svg>
@@ -667,6 +667,7 @@
                     </div>
                 </div>
 
+<div class="content-divider-line"></div>
                 <div class="tip-card">
                     <div class="tip-title">Best Practices</div>
                     <div class="tip-content">
@@ -683,8 +684,9 @@
         <div id="upgradeTab" class="tab-content">
             <div class="upgrade-container">
                 <div class="upgrade-header">
-                    <h3>🚀 Upgrade to Pro</h3>
-                    <p>Coming Soon</p>
+                    <h3>🚀 More Features</h3>
+                    <p>More Coming Soon.</p>
+                    <p>Looking for something specific? <a href="https://forms.gle/sAaop5SotZ3WCYmA8" target="_blank" style="color:inherit">Let us know.</a></p>
                 </div>
 <!-- 
                 <div class="features-grid">
@@ -1032,7 +1034,7 @@
                 <div class="error-state">
                     <h3>Error</h3>
                     <p>${message}</p>
-                    <button class="btn btn-primary" onclick="initApp()">Retry</button>
+                    <button class="btn btn-refresh" onclick="initApp()">Retry</button>
                 </div>
             `;
         }
