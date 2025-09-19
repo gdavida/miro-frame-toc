@@ -120,6 +120,19 @@
             gap: 12px;
         }
 
+        /* Hierarchy levels */
+        .toc-item.level-1 {
+            padding-left: 30px;
+        }
+
+        .toc-item.level-2 {
+            padding-left: 50px;
+        }
+
+        .toc-item.level-3 {
+            padding-left: 70px;
+        }
+
         .toc-item:hover {
             background: linear-gradient(90deg, rgba(255, 182, 193, 0.1) 0%, rgba(198, 108, 253, 0.05) 100%);
         }
@@ -128,65 +141,23 @@
             border-bottom: none;
         }
 
-        /* Parent frame styles */
-        .parent-frame {
-            border-bottom: 1px solid rgba(255, 182, 193, 0.1);
-        }
-
-        .parent-frame:last-child {
-            border-bottom: none;
-        }
-
-        .parent-header {
-            padding: 0 0 0 10px;
-            transition: all 0.2s;
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-        }
-
-        .parent-header:hover {
-            background: linear-gradient(90deg, rgba(255, 182, 193, 0.1) 0%, rgba(198, 108, 253, 0.05) 100%);
-        }
-
-        .expand-icon {
-            width: 16px;
-            height: 16px;
-            transition: transform 0.2s;
-            flex-shrink: 0;
-        }
-
-        .expand-icon svg {
-            width: 100%;
-            height: 100%;
-            stroke: #4a5568;
-        }
-
-        .parent-header.expanded .expand-icon {
-            transform: rotate(90deg);
-        }
-
-        /* Child frames container */
-        .children-container {
-            display: none;
-        }
-
-        .children-container.expanded {
-            display: block;
-        }
-
-        .child-frame {
-            padding-left: 40px;
-        }
-
         .toc-header {
             display: flex;
             align-items: center;
             flex: 1;
             gap: 8px;
             padding: 0 0 8px 0;
+        }
+
+        /* Hierarchy indicators */
+        .hierarchy-indicator {
+            flex-shrink: 0;
+            color: #4a5568;
+            font-size: 12px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            padding-bottom: 5px;
         }
 
         .frame-name {
@@ -338,7 +309,7 @@
 </head>
 <body>
     <div class="header">
-        <p style="line-height:1">Easily find all frames on your board. New feature requests? <a href="https://forms.gle/sAaop5SotZ3WCYmA8" target="_blank" style="color:inherit">Let me know.</a></p>
+        <p style="line-height:1">Easily find all frames on your board. Use *-* in frame names to create hierarchy. <a href="https://forms.gle/sAaop5SotZ3WCYmA8" target="_blank" style="color:inherit">New feature requests?</a></p>
         <div class="controls">
             <button class="btn btn-primary" onclick="refreshFrames()">
                 Refresh
@@ -359,7 +330,7 @@
     <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
     <script>
         let frames = [];
-        let expandedParents = new Set();
+        const HIERARCHY_SEPARATOR = '*-*';
 
         // Initialize the app
         async function initApp() {
@@ -435,63 +406,57 @@
         }
 
         function parseFrameHierarchy(frames) {
-            const hierarchy = {
-                parents: [],
-                standalone: [],
-                processed: new Set()
-            };
-
-            // First pass: identify parent frames
+            const hierarchicalFrames = [];
+            
             frames.forEach(frame => {
                 const title = frame.title || '';
                 
-                // Skip if already processed
-                if (hierarchy.processed.has(frame.id)) return;
-                
-                // Check if this frame has children (frames starting with ---)
-                const baseName = title.replace(/\s*\(.*?\)\s*$/, '').trim(); // Remove any parenthetical
-                const children = frames.filter(f => {
-                    const childTitle = f.title || '';
-                    // Match frames that start with --- and contain the parent name
-                    return childTitle.startsWith('---') && 
-                           childTitle.toLowerCase().includes(baseName.toLowerCase());
-                });
-
-                if (children.length > 0) {
-                    // This is a parent frame
-                    hierarchy.parents.push({
+                if (title.includes(HIERARCHY_SEPARATOR)) {
+                    // This frame has hierarchy
+                    const parts = title.split(HIERARCHY_SEPARATOR).map(p => p.trim());
+                    const level = parts.length - 1; // Last part is the actual name
+                    const displayName = parts[parts.length - 1];
+                    const parentPath = parts.slice(0, -1).join(HIERARCHY_SEPARATOR);
+                    
+                    hierarchicalFrames.push({
                         frame: frame,
-                        children: children
+                        displayName: displayName,
+                        level: level,
+                        parentPath: parentPath,
+                        fullPath: title,
+                        sortKey: title.toLowerCase()
                     });
-                    hierarchy.processed.add(frame.id);
-                    children.forEach(child => hierarchy.processed.add(child.id));
+                } else {
+                    // Regular frame without hierarchy
+                    hierarchicalFrames.push({
+                        frame: frame,
+                        displayName: title,
+                        level: 0,
+                        parentPath: '',
+                        fullPath: title,
+                        sortKey: title.toLowerCase()
+                    });
                 }
             });
-
-            // Second pass: add remaining frames as standalone
-            frames.forEach(frame => {
-                if (!hierarchy.processed.has(frame.id)) {
-                    hierarchy.standalone.push(frame);
+            
+            // Sort frames alphabetically, maintaining hierarchy
+            hierarchicalFrames.sort((a, b) => {
+                // If they share the same parent path, sort by display name
+                if (a.parentPath === b.parentPath) {
+                    return a.displayName.localeCompare(b.displayName);
                 }
+                // Otherwise sort by full path to keep hierarchies together
+                return a.sortKey.localeCompare(b.sortKey);
             });
-
-            return hierarchy;
+            
+            return hierarchicalFrames;
         }
 
-        function toggleParent(frameId) {
-            if (expandedParents.has(frameId)) {
-                expandedParents.delete(frameId);
-            } else {
-                expandedParents.add(frameId);
-            }
-            
-            const header = document.querySelector(`[data-parent-id="${frameId}"]`);
-            const container = document.querySelector(`[data-children-id="${frameId}"]`);
-            
-            if (header && container) {
-                header.classList.toggle('expanded');
-                container.classList.toggle('expanded');
-            }
+        function getHierarchyIndicator(level) {
+            if (level === 1) return '›';
+            if (level === 2) return '•';
+            if (level === 3) return '◦';
+            return '›'; // Default for any deeper levels
         }
 
         function renderTableOfContents() {
@@ -502,85 +467,21 @@
                 return;
             }
 
-            const hierarchy = parseFrameHierarchy(frames);
+            const hierarchicalFrames = parseFrameHierarchy(frames);
             let html = '<div class="toc-list">';
             
-            // Sort parents alphabetically
-            hierarchy.parents.sort((a, b) => 
-                (a.frame.title || '').localeCompare(b.frame.title || '')
-            );
-            
-            // Render parent frames with children
-            hierarchy.parents.forEach(parent => {
-                const parentId = parent.frame.id;
-                const parentName = parent.frame.title || 'Untitled Frame';
-                const isExpanded = expandedParents.has(parentId);
+            hierarchicalFrames.forEach((item, index) => {
+                const frameId = item.frame.id;
+                const frameName = item.displayName || `Frame ${index + 1}`;
+                const level = item.level;
+                
+                const levelClass = level > 0 ? `level-${Math.min(level, 3)}` : '';
+                const indicator = level > 0 ? getHierarchyIndicator(level) : '';
                 
                 html += `
-                    <div class="parent-frame">
-                        <div class="parent-header ${isExpanded ? 'expanded' : ''}" 
-                             data-parent-id="${parentId}"
-                             onclick="toggleParent('${parentId}')">
-                            <span class="expand-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-                                    <path d="M9 6l6 6-6 6"/>
-                                </svg>
-                            </span>
-                            <div class="toc-header">
-                                <a href="#" class="frame-name" onclick="event.stopPropagation(); navigateToFrame('${parentId}'); return false;">
-                                    ${escapeHtml(parentName)}
-                                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="children-container ${isExpanded ? 'expanded' : ''}" 
-                             data-children-id="${parentId}">
-                `;
-                
-                // Sort children alphabetically
-                parent.children.sort((a, b) => 
-                    (a.title || '').localeCompare(b.title || '')
-                );
-                
-                parent.children.forEach(child => {
-                    const childName = child.title || 'Untitled Frame';
-                    const displayName = childName.replace(/^---+\s*/, '');
-                    
-                    html += `
-                        <div class="toc-item child-frame">
-                            <div class="toc-header">
-                                <a href="#" class="frame-name" onclick="navigateToFrame('${child.id}'); return false;">
-                                    ${escapeHtml(displayName)}
-                                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                html += `
-                        </div>
-                    </div>
-                `;
-            });
-            
-            // Sort standalone frames alphabetically
-            hierarchy.standalone.sort((a, b) => 
-                (a.title || '').localeCompare(b.title || '')
-            );
-            
-            // Render standalone frames
-            hierarchy.standalone.forEach((frame, index) => {
-                const frameId = frame.id;
-                const frameName = frame.title || `Frame ${index + 1}`;
-                
-                html += `
-                    <div class="toc-item">
+                    <div class="toc-item ${levelClass}">
                         <div class="toc-header">
+                            ${indicator ? `<span class="hierarchy-indicator">${indicator}</span>` : ''}
                             <a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;">
                                 ${escapeHtml(frameName)}
                                 <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
