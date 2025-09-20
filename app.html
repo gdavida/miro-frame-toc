@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frame Table of Contents</title>
     <link rel="stylesheet" href="https://unpkg.com/mirotone/dist/styles.css">
-    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="css/style.css">
 
 </head>
 <body>
@@ -20,11 +20,6 @@
         </div>
     </div>
 
-    <div class="tab-navigation">
-        <button class="tab-btn active" onclick="switchTab('toc')">Table of Contents</button>
-        <button class="tab-btn" onclick="switchTab('tips')">Tips</button>
-        <button class="tab-btn" onclick="switchTab('upgrade')">Upgrade</button>
-    </div>
 
     <div class="content">
         <!-- Table of Contents Tab -->
@@ -41,7 +36,10 @@
         <!-- Tips Tab -->
         <div id="tipsTab" class="tab-content">
             <div class="tips-container">
-                <h3>📚 How to Use</h3>
+                <h3>📚 Tips: How to Use</h3>
+
+
+
                 
                 <div class="tip-card">
                     <div class="tip-title">The Basics</div>
@@ -49,6 +47,25 @@
                         <p>Each frame becomes a clickable link that navigates directly to that frame on your board.</p>
                     </div>
                 </div>
+
+
+<div class="content-divider-line"></div>
+                
+                <div class="tip-card">
+                    <div class="tip-title">Best Practices</div>
+                    <div class="tip-content">
+                        <p>
+                        • Name all frames<br>
+                        • Keep names concise and descriptive<br>
+                        • Group related frames under common parent categories<br>
+                        • Limit hierarchy to 3 levels for better readability</p>
+                    </div>
+                </div>
+
+
+<div class="content-divider-line"></div>
+
+
                 <div class="tip-card">
                     <div class="tip-title">Hierarchy</div>
                     <div class="tip-content">
@@ -58,11 +75,11 @@
 
 <div class="content-divider-line"></div>
 <div class="tip-card">
-                    <div class="tip-title">Examples</div>
+                    <div class="tip-title">Examples</div><br>
                     <div class="tip-content">
                         <strong>Input (Frame Names):</strong>
                         <div class="code-example">Landing Pages</div>
-                        <div class="code-example">Landing Pages *-*Brain Dump</div>
+                        <div class="code-example">Landing Pages *-*Brainstorm</div>
                         <div class="code-example">Landing Pages *-* Conference</div>
                         <div class="code-example">Landing Pages*-*Product Release</div>
                         <div class="code-example">Landing Pages *-* Webinar</div>
@@ -83,7 +100,7 @@
                                 <div class="toc-header">
                                     <span class="hierarchy-indicator">▸</span>
                                     <a href="#" class="frame-name" onclick="return false;">
-                                        Brain Dump
+                                        Brainstorm
                                         <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                         </svg>
@@ -126,19 +143,9 @@
                         </div>
                     </div>
                 </div>
-
-<div class="content-divider-line"></div>
-                <div class="tip-card">
-                    <div class="tip-title">Best Practices</div>
-                    <div class="tip-content">
-                        • Name all frames<br>
-                        • Keep names concise and descriptive<br>
-                        • Group related frames under common parent categories<br>
-                        • Limit hierarchy to 3 levels for better readability
-                    </div>
-                </div>
-            </div>
+</div>
         </div>
+
 
         <!-- Upgrade Tab -->
         <div id="upgradeTab" class="tab-content">
@@ -213,14 +220,30 @@
 
     <!-- Footer -->
     <div class="footer">
-        <div class="footer-logo">🤍</div>
-        <span class="footer-text">Organize your Miro boards effortlessly<br>- From Davida -</span>
+      
+<div class="tab-navigation">
+    <div class="mininav-wrapper">
+        <span class="tabLinks active" onclick="switchTab('toc')">Table of Contents</span>
+        <span class="divider">/</span>
+        <span class="tabLinks" onclick="switchTab('tips')">Tips</span>
+        <span class="divider">/</span>
+        <span class="tabLinks" onclick="switchTab('upgrade')">More Features</span>
+    </div>
+</div>
+        <div class="brand-wrapper">
+            <div class="footer-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" version="1.1" viewBox="0 0 1200 1200">
+                <path d="m916.52 75.324c-97.895-36.898-206.68 18.828-259.59 102.5-35.531 56.195-50.219 122.68-59.438 187.64-4.0781 28.738-7.7148 57.562-11.219 86.398-32.195-56.746-73.008-108.34-122.23-152.14-52.477-46.691-190-164.41-252-78.73-66.625 92.062-32.137 224.79 11.711 317.98 47.652 101.3 118.41 194.3 190.32 279.53 82.199 97.43 175.39 183.84 276.45 261.3-0.23828 0.86328-0.50391 1.7266-0.74219 2.5938-16.188 57.781 73.598 82.441 89.762 24.742 70.262-250.71 201.05-484.02 238.33-743.87 15.059-104.99 17.852-243.01-101.36-287.95zm-267.17 551.34c-0.40625-0.74219-0.80469-1.4883-1.1992-2.2305 0.67188-0.64844 1.3203-1.3086 1.957-1.9922-0.25391 1.4023-0.50391 2.8203-0.75781 4.2227zm-196.1-132.1c3.875 11.734 7.7031 23.484 11.773 35.148-16.141-24.086-31.871-48.434-47.125-73.078 12.023 12.418 23.805 25.066 35.352 37.93zm247.23 451.63c5.5312 12.395 11.051 24.805 16.547 37.211-14.207-11.293-28.273-22.766-42.086-34.523 8.5 2.0664 17.367 0.83984 25.539-2.6875zm173.25-786.95c59.723 13.43 62.281 84.215 59.039 133.63-0.011719 0.10938-0.023438 0.22656-0.023438 0.33594-11.566 1.9062-22.477 8.7969-29.965 22.332-32.773 59.27-60.383 120.65-84.371 183.42 9.625-103.8 23.676-207.19 42.301-309.96 2.1016-11.605 0-22.645-4.7656-32.027 5.9688 0.21094 11.918 0.94531 17.785 2.2656zm-159.27 110.06c-14.891 52.512-21.203 108.77-30.395 160.82-2.3633 13.379-4.7266 26.746-7.0781 40.129 3.4336-28.812 7.0078-57.59 11.148-86.281 5.4297-37.633 12.285-77.918 26.324-114.67zm-226.11 493.32c-72.504-84.602-145.54-179.69-189.73-282.7-11.773-27.445-21.828-57.07-26.746-87.215 7.2852 12.289 14.543 24.012 20.617 34.836 33.91 60.492 71.148 119.06 110.41 176.22 74.953 109.13 157.16 213.07 239.51 316.68-54.746-49.164-106.21-102.01-154.06-157.82z"/>
+                </svg>
+            </div>
+            <span class="footer-text">Organize your Miro boards effortlessly<br>- From Davida -</span>
+        </div>
     </div>
     
    
 
     <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
-     <script src="script/myScript.js"></script>
+     <script src="js/main.js"></script>
     
 </body>
 </html>

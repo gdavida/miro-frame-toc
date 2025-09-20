@@ -39,41 +39,100 @@
             align-items: center;
         }
 
-        /* Tab Navigation */
-        .tab-navigation {
+        .brand-wrapper {
             display: flex;
-            gap: 8px;
-            padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 182, 193, 0.15);
             justify-content: center;
-        }
-
-        .tab-btn {
-            padding: 8px 10px;
-            border-radius: 12px;
-            border: none;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 500;
-            background: transparent;
-            color: #6b7280;
-            position: relative;
-            width: 33%;
-        }
-
-        .tab-btn.active {
+            align-items: center;
+            flex-direction: column;
             background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+            width: 100%;
+            padding: 20px 0 25px;
         }
 
-        .tab-btn:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.8);
-            color: #7c3aed; /* Darker purple for better contrast */
-        }
+        
+/* Enhanced Tab Navigation - COMPLETE CSS */
+.tab-navigation {
+    padding: 0;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    background-color: black;
+    position: relative;
+}
+
+.mininav-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    color: white;
+    font-size: 12px;
+    width: 100%;
+    max-width: 360px;
+    position: relative;
+    height: 32px;
+}
+
+.tabLinks {
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.2s ease, background-color 0.2s ease;
+    user-select: none;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    width: auto;
+}
+
+.tabLinks:hover {
+    color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tabLinks:active {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.tabLinks.active {
+    color: white;
+    font-weight: 500;
+}
+
+.tabLinks.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 2px;
+    background: linear-gradient(90deg, #ff6b9d 0%, #c66cfd 100%);
+    border-radius: 2px 2px 0 0;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+    to {
+        width: 60%;
+        opacity: 1;
+    }
+}
+
+.mininav-wrapper .divider {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    padding: 0 2px;
+}
+
 
         .btn {
             padding: 8px 16px;
@@ -152,11 +211,10 @@
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255, 182, 193, 0.2);
-            padding: 10px 20px;
+            padding: 10px 0 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
             box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.1);
             z-index: 100;
             flex-direction: column;
@@ -164,22 +222,22 @@
         }
 
         .footer-logo {
-            width: 24px;
-            height: 24px;
             background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
-            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             color: white;
             font-size: 12px;
+            width: 100%;
         }
 
         .footer-text {
             font-size: 11px;
-            color: #6b7280;
+            color: black;
             font-weight: 400;
+            padding-top: 10px;
+            font-family: monospace;
         }
 
         .toc-list {

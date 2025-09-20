@@ -6,11 +6,35 @@
         function switchTab(tabName) {
             currentTab = tabName;
             
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
+            // Update tab link states
+            document.querySelectorAll('.tabLinks').forEach(link => {
+                link.classList.remove('active');
             });
-            event.target.classList.add('active');
+            
+            // Add active class to clicked tab
+            event.currentTarget.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Refresh frames if switching to TOC tab
+            if (tabName === 'toc') {
+                refreshFrames();
+            }
+        }// Replace your existing switchTab function with this
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Update tab link states
+            document.querySelectorAll('.tabLinks').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            event.currentTarget.classList.add('active');
             
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => {
@@ -23,7 +47,6 @@
                 refreshFrames();
             }
         }
-
         // Initialize the app
         async function initApp() {
             try {
