@@ -254,7 +254,7 @@
                     // Apply the calculated offset
                     await miro.board.viewport.set({
                         viewport: {
-                            x: viewport.x + finalOffset,
+                            x: viewport.x - finalOffset,
                             y: viewport.y,
                             width: viewport.width,
                             height: viewport.height
