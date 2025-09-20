@@ -69,11 +69,10 @@
     width: 100%;
     max-width: 360px;
     position: relative;
-    height: 32px;
 }
 
 .tabLinks {
-    padding: 0 20px;
+    padding: 10px 5px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -84,7 +83,11 @@
     user-select: none;
     font-weight: 400;
     letter-spacing: 0.2px;
-    width: auto;
+    width: 120px;;
+}
+
+.tabLinks:nth-child(3) {
+    width: 60px;
 }
 
 .tabLinks:hover {
