@@ -1,4 +1,3 @@
-<script>
         let frames = [];
         const HIERARCHY_SEPARATOR = '*-*';
         let currentTab = 'toc';
@@ -303,4 +302,3 @@
             console.log('Page loaded, initializing app...');
             initApp();
         });
-    </script>
