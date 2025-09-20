@@ -262,11 +262,11 @@
                         animationDurationInMs: 300
                     });
                     
-                    showStatus('Navigated to frame', 'success');
+                    // showStatus('Navigated to frame', 'success');
                 }
             } catch (error) {
-                console.error('Failed to navigate to frame:', error);
-                showStatus('Failed to navigate to frame', 'error');
+                // console.error('Failed to navigate to frame:', error);
+                // showStatus('Failed to navigate to frame', 'error');
             }
         }
 
