@@ -214,7 +214,7 @@
             container.innerHTML = html;
         }
 
-        async function navigateToFrame(frameId) {
+async function navigateToFrame(frameId) {
             try {
                 const frame = frames.find(f => f.id === frameId);
                 if (frame) {
@@ -224,43 +224,72 @@
                     // Get the resulting viewport after zoom
                     const viewport = await miro.board.viewport.get();
                     
-                    // Calculate how much of the frame width is visible in the viewport
-                    // This gives us the zoom factor
-                    const zoomFactor = viewport.width / frame.width;
-                    
                     // Panel width constant
                     const PANEL_WIDTH = 368;
+                    const LEFT_PADDING = 50; // Distance from left edge
                     
-                    // Calculate dynamic offset based on the zoom level
-                    // When zoomed out (wider frames), we need less offset
-                    // When zoomed in (narrower frames), we need more offset
-                    const dynamicOffset = PANEL_WIDTH / zoomFactor;
+                    // Calculate the visible canvas width (total width minus panel)
+                    const visibleCanvasWidth = viewport.width - PANEL_WIDTH;
                     
-                    // Apply a scaling factor to fine-tune the offset
-                    // Wider frames (aspect ratio > 1.5) need less compensation
-                    const aspectRatio = frame.width / frame.height;
-                    let offsetMultiplier = 1;
+                    // Calculate how much of the frame is visible in world coordinates
+                    const frameWidthInViewport = frame.width;
                     
-                    if (aspectRatio > 2) {
-                        offsetMultiplier = 0.5;  // Very wide frames: use half offset
-                    } else if (aspectRatio > 1.5) {
-                        offsetMultiplier = 0.7;  // Wide frames: use 70% offset
-                    } else if (aspectRatio < 0.5) {
-                        offsetMultiplier = 1.2;  // Very narrow frames: use 120% offset
-                    }
+                    // Check if frame fits in visible area at current zoom
+                    const currentZoomLevel = viewport.width / frameWidthInViewport;
+                    const frameWidthOnScreen = frameWidthInViewport * currentZoomLevel;
                     
-                    const finalOffset = -dynamicOffset * offsetMultiplier;
+                    // Calculate the left edge position in world coordinates
+                    // We want the frame to start at LEFT_PADDING pixels from the left edge
+                    const desiredFrameLeftInWorld = viewport.x - (viewport.width / 2) + (LEFT_PADDING / currentZoomLevel);
                     
-                    // Apply the calculated offset
+                    // Calculate how much we need to shift the frame
+                    const frameCurrentLeft = frame.x - (frame.width / 2);
+                    const xShift = desiredFrameLeftInWorld - frameCurrentLeft;
+                    
+                    // Apply the position adjustment
                     await miro.board.viewport.set({
                         viewport: {
-                            x: viewport.x + finalOffset,
+                            x: viewport.x - xShift,
                             y: viewport.y,
                             width: viewport.width,
                             height: viewport.height
                         },
                         animationDurationInMs: 300
                     });
+                    
+                    // Check if frame extends beyond visible area
+                    // If it does, we might need to zoom out more
+                    if (frameWidthOnScreen > (visibleCanvasWidth - LEFT_PADDING - 20)) {
+                        // Frame is too wide for the visible area
+                        // Zoom out to fit it
+                        const newZoomFactor = (visibleCanvasWidth - LEFT_PADDING - 20) / frameWidthInViewport;
+                        const newViewportWidth = viewport.width / (frameWidthOnScreen / (visibleCanvasWidth - LEFT_PADDING - 20));
+                        
+                        await miro.board.viewport.set({
+                            viewport: {
+                                x: frame.x,
+                                y: frame.y,
+                                width: newViewportWidth,
+                                height: newViewportWidth * (viewport.height / viewport.width)
+                            },
+                            animationDurationInMs: 300
+                        });
+                        
+                        // After zooming out, reposition to left-align
+                        const newViewport = await miro.board.viewport.get();
+                        const newDesiredFrameLeftInWorld = newViewport.x - (newViewport.width / 2) + (LEFT_PADDING / (newViewport.width / frameWidthInViewport));
+                        const newXShift = newDesiredFrameLeftInWorld - frameCurrentLeft;
+                        
+                        await miro.board.viewport.set({
+                            viewport: {
+                                x: newViewport.x - newXShift,
+                                y: newViewport.y,
+                                width: newViewport.width,
+                                height: newViewport.height
+                            },
+                            animationDurationInMs: 300
+                        });
+                    }
                     
                     // showStatus('Navigated to frame', 'success');
                 }
@@ -269,7 +298,6 @@
                 // showStatus('Failed to navigate to frame', 'error');
             }
         }
-
         function handleUpgrade() {
             showStatus('Coming soon! Pro features will be available shortly.', 'success');
         }
