@@ -241,20 +241,20 @@
                     const aspectRatio = frame.width / frame.height;
                     let offsetMultiplier = 1;
                     
-                    if (aspectRatio > 2) {
-                        offsetMultiplier = 0.5;  // Very wide frames: use half offset
-                    } else if (aspectRatio > 1.5) {
-                        offsetMultiplier = 0.7;  // Wide frames: use 70% offset
-                    } else if (aspectRatio < 0.5) {
-                        offsetMultiplier = 1.2;  // Very narrow frames: use 120% offset
-                    }
+                    // if (aspectRatio > 2) {
+                    //     offsetMultiplier = 0.5;  // Very wide frames: use half offset
+                    // } else if (aspectRatio > 1.5) {
+                    //     offsetMultiplier = 0.7;  // Wide frames: use 70% offset
+                    // } else if (aspectRatio < 0.5) {
+                    //     offsetMultiplier = 1.2;  // Very narrow frames: use 120% offset
+                    // }
                     
                     const finalOffset = -dynamicOffset * offsetMultiplier;
                     
                     // Apply the calculated offset
                     await miro.board.viewport.set({
                         viewport: {
-                            x: viewport.x - finalOffset,
+                            x: viewport.x + finalOffset,
                             y: viewport.y,
                             width: viewport.width,
                             height: viewport.height
