@@ -213,56 +213,29 @@
             html += '</div>';
             container.innerHTML = html;
         }
+
 async function navigateToFrame(frameId) {
     try {
         const frame = frames.find(f => f.id === frameId);
         if (!frame) return;
         
-        // Panel width constant
-        const PANEL_WIDTH = 368;
-        
-        // First, zoom to the frame to get a good baseline zoom level
+        // Use Miro's built-in zoom to frame
         await miro.board.viewport.zoomTo([frame]);
         
-        // Get the viewport after zooming
-        let viewport = await miro.board.viewport.get();
+        // Get current viewport
+        const viewport = await miro.board.viewport.get();
         
-        // Calculate the visible width accounting for the panel
-        const visibleWidth = viewport.width - PANEL_WIDTH;
+        // Simple offset calculation
+        // The panel takes up roughly 368px, which is about 20-25% of typical screen width
+        // We'll offset by a proportion of the viewport width
+        const offsetRatio = 0.15; // Shift right by 15% of viewport width
+        const offset = viewport.width * offsetRatio;
         
-        // Check if we need to zoom out to fit the frame in the visible area
-        if (frame.width > visibleWidth) {
-            // Calculate new zoom to fit frame in visible area with some padding
-            const paddingFactor = 0.9; // 90% of available space
-            const targetWidth = (visibleWidth * paddingFactor) / frame.width * viewport.width;
-            
-            await miro.board.viewport.set({
-                viewport: {
-                    x: viewport.x,
-                    y: viewport.y,
-                    width: targetWidth,
-                    height: targetWidth * (viewport.height / viewport.width)
-                },
-                animationDurationInMs: 300
-            });
-            
-            // Update viewport reference
-            viewport = await miro.board.viewport.get();
-        }
-        
-        // Now adjust horizontal position to account for the panel
-        // We want to shift the frame to the right so it's not hidden behind the panel
-        const panelOffsetInBoardCoords = (PANEL_WIDTH / 2) * (viewport.width / window.innerWidth);
-        
-        // Also ensure the top of the frame (with title) is visible
-        // Frame title is typically 40-60 pixels above the frame
-        const titleOffset = 50 * (viewport.height / window.innerHeight);
-        
-        // Apply the final positioning
+        // Apply a simple rightward shift to account for the panel
         await miro.board.viewport.set({
             viewport: {
-                x: viewport.x + panelOffsetInBoardCoords,
-                y: viewport.y - titleOffset,
+                x: viewport.x + offset,
+                y: viewport.y,
                 width: viewport.width,
                 height: viewport.height
             },
