@@ -222,7 +222,7 @@ async function createFrameHighlight(frame) {
                 // Create a rounded, thicker highlight
                 const padding = 25;
                 const highlight = await miro.board.createShape({
-                    shape: 'round_rectangle',  // Rounded corners
+                    shape: 'rectangle',  // Rounded corners
                     x: frame.x,
                     y: frame.y,
                     width: frame.width + padding * 2,
