@@ -242,8 +242,61 @@ async function navigateToFrame(frameId) {
             animationDurationInMs: 300
         });
         
+        // Add the highlight effect after navigation
+        await createFrameHighlight(frame);
+        
     } catch (error) {
         console.error('Failed to navigate to frame:', error);
+    }
+}
+
+async function createFrameHighlight(frame) {
+    try {
+        // Create a pink highlight border around the frame
+        const padding = 30; // Space around the frame
+        const highlight = await miro.board.createShape({
+            shape: 'rectangle',
+            x: frame.x,
+            y: frame.y,
+            width: frame.width + padding * 2,
+            height: frame.height + padding * 2,
+            style: {
+                fillColor: 'transparent',   // No fill, just border
+                borderColor: '#FF1493',      // Deep pink
+                borderWidth: 12,             // Thick enough to be visible
+                borderOpacity: 0.9
+            }
+        });
+        
+        // Fade effect using stepped opacity reduction
+        const fadeSteps = 5;
+        const stepDuration = 400; // ms between each fade step
+        
+        for (let i = 1; i <= fadeSteps; i++) {
+            setTimeout(async () => {
+                try {
+                    if (i < fadeSteps) {
+                        // Gradually reduce opacity
+                        await highlight.update({
+                            style: {
+                                fillColor: 'transparent',
+                                borderColor: '#FF1493',
+                                borderWidth: 12,
+                                borderOpacity: 0.9 * (1 - i / fadeSteps)
+                            }
+                        });
+                    } else {
+                        // Remove on last step
+                        await miro.board.remove(highlight);
+                    }
+                } catch (err) {
+                    // Silently handle if highlight already removed
+                }
+            }, stepDuration * i);
+        }
+        
+    } catch (error) {
+        console.error('Failed to create highlight:', error);
     }
 }
 
