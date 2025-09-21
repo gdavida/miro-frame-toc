@@ -228,7 +228,7 @@ async function navigateToFrame(frameId) {
         // Simple offset calculation
         // The panel takes up roughly 368px, which is about 20-25% of typical screen width
         // We'll offset by a proportion of the viewport width
-        const offsetRatio = 0.15; // Shift right by 15% of viewport width
+        const offsetRatio = 0.3; // Shift right by 15% of viewport width
         const offset = viewport.width * offsetRatio;
         
         // Apply a simple rightward shift to account for the panel
