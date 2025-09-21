@@ -214,92 +214,71 @@
             container.innerHTML = html;
         }
 
-async function navigateToFrame(frameId) {
-    try {
-        const frame = frames.find(f => f.id === frameId);
-        if (!frame) return;
-        
-        // Use Miro's built-in zoom to frame
-        await miro.board.viewport.zoomTo([frame]);
-        
-        // Get current viewport
-        const viewport = await miro.board.viewport.get();
-        
-        // Simple offset calculation
-        // The panel takes up roughly 368px, which is about 20-25% of typical screen width
-        // We'll offset by a proportion of the viewport width
-        const offsetRatio = 0.25; // Shift right by 15% of viewport width
-        const offset = viewport.width * offsetRatio;
-        
-        // Apply a simple rightward shift to account for the panel
-        await miro.board.viewport.set({
-            viewport: {
-                x: viewport.x - offset,
-                y: viewport.y,
-                width: viewport.width,
-                height: viewport.height
-            },
-            animationDurationInMs: 300
-        });
-        
-        // Add the highlight effect after navigation
-        await createFrameHighlight(frame);
-        
-    } catch (error) {
-        console.error('Failed to navigate to frame:', error);
-    }
-}
-
 async function createFrameHighlight(frame) {
     try {
-        // Create a pink highlight border around the frame
-        const padding = 30; // Space around the frame
-        const highlight = await miro.board.createShape({
-            shape: 'rectangle',
-            x: frame.x,
-            y: frame.y,
-            width: frame.width + padding * 2,
-            height: frame.height + padding * 2,
-            style: {
-                fillColor: 'transparent',   // No fill, just border
-                borderColor: '#FF1493',      // Deep pink
-                borderWidth: 12,             // Thick enough to be visible
-                borderOpacity: 0.9
-            }
-        });
+        // Create a soft glow effect with two gentle pulses
+        const pulses = 2;
+        const pulseDuration = 500; // Duration of each pulse
         
-        // Fade effect using stepped opacity reduction
-        const fadeSteps = 5;
-        const stepDuration = 400; // ms between each fade step
-        
-        for (let i = 1; i <= fadeSteps; i++) {
+        for (let pulse = 0; pulse < pulses; pulse++) {
             setTimeout(async () => {
-                try {
-                    if (i < fadeSteps) {
-                        // Gradually reduce opacity
-                        await highlight.update({
-                            style: {
-                                fillColor: 'transparent',
-                                borderColor: '#FF1493',
-                                borderWidth: 12,
-                                borderOpacity: 0.9 * (1 - i / fadeSteps)
-                            }
-                        });
-                    } else {
-                        // Remove on last step
-                        await miro.board.remove(highlight);
+                const padding = 30;
+                
+                // Create the highlight with rounded corners
+                const highlight = await miro.board.createShape({
+                    shape: 'round_rectangle',
+                    x: frame.x,
+                    y: frame.y,
+                    width: frame.width + padding * 2,
+                    height: frame.height + padding * 2,
+                    style: {
+                        fillColor: '#FFB6C1',     // Light pink fill
+                        fillOpacity: 0.05,        // Almost invisible fill
+                        borderColor: '#FF69B4',   // Hot pink border
+                        borderWidth: 24,          // Nice thick border
+                        borderOpacity: 0          // Start invisible
                     }
-                } catch (err) {
-                    // Silently handle if highlight already removed
+                });
+                
+                // Fade in then out for smooth pulse
+                const steps = [
+                    { opacity: 0.3, fillOpacity: 0.03, delay: 50 },   // Fade in
+                    { opacity: 0.5, fillOpacity: 0.05, delay: 100 },  // Peak
+                    { opacity: 0.3, fillOpacity: 0.03, delay: 150 },  // Start fade
+                    { opacity: 0.1, fillOpacity: 0.01, delay: 200 },  // Fading
+                    { opacity: 0, fillOpacity: 0, delay: 250 }        // Gone
+                ];
+                
+                for (let step of steps) {
+                    setTimeout(async () => {
+                        try {
+                            await highlight.update({
+                                style: {
+                                    fillColor: '#FFB6C1',
+                                    fillOpacity: step.fillOpacity,
+                                    borderColor: '#FF69B4',
+                                    borderWidth: 24,
+                                    borderOpacity: step.opacity
+                                }
+                            });
+                        } catch (err) {}
+                    }, step.delay);
                 }
-            }, stepDuration * i);
+                
+                // Remove after animation completes
+                setTimeout(async () => {
+                    try {
+                        await miro.board.remove(highlight);
+                    } catch (err) {}
+                }, 300);
+                
+            }, pulse * 550); // Slight gap between pulses
         }
         
     } catch (error) {
         console.error('Failed to create highlight:', error);
     }
 }
-
         function handleUpgrade() {
             showStatus('Coming soon! Pro features will be available shortly.', 'success');
         }
