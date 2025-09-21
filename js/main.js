@@ -214,42 +214,62 @@
             container.innerHTML = html;
         }
 
-async function navigateToFrame(frameId) {
+async function createFrameHighlight(frame) {
     try {
-        const frame = frames.find(f => f.id === frameId);
-        if (!frame) return;
-        
-        // Use Miro's built-in zoom to frame
-        await miro.board.viewport.zoomTo([frame]);
-        
-        // Get current viewport
-        const viewport = await miro.board.viewport.get();
-        
-        // Simple offset calculation
-        // The panel takes up roughly 368px, which is about 20-25% of typical screen width
-        // We'll offset by a proportion of the viewport width
-        const offsetRatio = 0.25; // Shift right by 15% of viewport width
-        const offset = viewport.width * offsetRatio;
-        
-        // Apply a simple rightward shift to account for the panel
-        await miro.board.viewport.set({
-            viewport: {
-                x: viewport.x - offset,
-                y: viewport.y,
-                width: viewport.width,
-                height: viewport.height
-            },
-            animationDurationInMs: 300
-        });
-        
-        // Add the highlight effect after navigation
-        await createFrameHighlight(frame);
+        // Create two pulses for a double-blink effect
+        for (let pulse = 0; pulse < 2; pulse++) {
+            setTimeout(async () => {
+                // Create a rounded, thicker highlight
+                const padding = 25;
+                const highlight = await miro.board.createShape({
+                    shape: 'round_rectangle',  // Rounded corners
+                    x: frame.x,
+                    y: frame.y,
+                    width: frame.width + padding * 2,
+                    height: frame.height + padding * 2,
+                    style: {
+                        fillColor: '#FF69B4',     // Hot pink fill
+                        fillOpacity: 0.08,        // Very subtle fill
+                        borderColor: '#FF69B4',   // Hot pink border
+                        borderWidth: 20,          // Thicker border
+                        borderOpacity: 0.4        // Start at 40% opacity for subtlety
+                    }
+                });
+                
+                // Fade out animation
+                const fadeSteps = 4;
+                const stepDuration = 150; // Faster fade
+                
+                for (let i = 1; i <= fadeSteps; i++) {
+                    setTimeout(async () => {
+                        try {
+                            if (i < fadeSteps) {
+                                const opacity = 0.4 * (1 - (i / fadeSteps));
+                                const fillOpacity = 0.08 * (1 - (i / fadeSteps));
+                                await highlight.update({
+                                    style: {
+                                        fillColor: '#FF69B4',
+                                        fillOpacity: fillOpacity,
+                                        borderColor: '#FF69B4',
+                                        borderWidth: 20,
+                                        borderOpacity: opacity
+                                    }
+                                });
+                            } else {
+                                await miro.board.remove(highlight);
+                            }
+                        } catch (err) {
+                            // Silent fail
+                        }
+                    }, stepDuration * i);
+                }
+            }, pulse * 700); // 700ms between pulses
+        }
         
     } catch (error) {
-        console.error('Failed to navigate to frame:', error);
+        console.error('Failed to create highlight:', error);
     }
 }
-
 async function createFrameHighlight(frame) {
     try {
         // Create a pink highlight border around the frame
