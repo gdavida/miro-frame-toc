@@ -223,7 +223,7 @@
                     // width,height is how much area to show
                     await miro.board.viewport.set({
                         viewport: {
-                            x: frame.x + 368,  // Shift center point left by 100 units
+                            x: frame.x -750,  // Shift center point left by 100 units
                             y: frame.y,        // Keep vertical center
                             width: frame.width * 1.2,   // Show frame with some padding
                             height: frame.height * 1.2
