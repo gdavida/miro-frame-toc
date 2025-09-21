@@ -214,61 +214,90 @@
             container.innerHTML = html;
         }
 
-        async function navigateToFrame(frameId) {
-            try {
-                const frame = frames.find(f => f.id === frameId);
-                if (frame) {
-                    // First, zoom to the frame to get the natural zoom level
-                    await miro.board.viewport.zoomTo([frame]);
-                    
-                    // Get the resulting viewport after zoom
-                    const viewport = await miro.board.viewport.get();
-                    
-                    // Calculate how much of the frame width is visible in the viewport
-                    // This gives us the zoom factor
-                    const zoomFactor = viewport.width / frame.width;
-                    
-                    // Panel width constant
-                    const PANEL_WIDTH = 368;
-                    
-                    // Calculate dynamic offset based on the zoom level
-                    // When zoomed out (wider frames), we need less offset
-                    // When zoomed in (narrower frames), we need more offset
-                    const dynamicOffset = PANEL_WIDTH / zoomFactor;
-                    
-                    // Apply a scaling factor to fine-tune the offset
-                    // Wider frames (aspect ratio > 1.5) need less compensation
-                    const aspectRatio = frame.width / frame.height;
-                    let offsetMultiplier = 1;
-                    
-                    if (aspectRatio > 2) {
-                        offsetMultiplier = 0.5;  // Very wide frames: use half offset
-                    } else if (aspectRatio > 1.5) {
-                        offsetMultiplier = 0.7;  // Wide frames: use 70% offset
-                    } else if (aspectRatio < 0.5) {
-                        offsetMultiplier = 2;  // Very narrow frames: use 120% offset
-                    }
-                    
-                    const finalOffset = -dynamicOffset * offsetMultiplier;
-                    
-                    // Apply the calculated offset
-                    await miro.board.viewport.set({
-                        viewport: {
-                            x: viewport.x + finalOffset,
-                            y: viewport.y,
-                            width: viewport.width,
-                            height: viewport.height
-                        },
-                        animationDurationInMs: 300
-                    });
-                    
-                    // showStatus('Navigated to frame', 'success');
-                }
-            } catch (error) {
-                // console.error('Failed to navigate to frame:', error);
-                // showStatus('Failed to navigate to frame', 'error');
-            }
-        }
+async function navigateToFrame(frameId) {
+    try {
+        const frame = frames.find(f => f.id === frameId);
+        if (!frame) return;
+        
+        // Panel width constant
+        const PANEL_WIDTH = 368;
+        
+        // Get current viewport to understand available space
+        const currentViewport = await miro.board.viewport.get();
+        
+        // Calculate the frame bounds
+        // Frame coordinates are centered, so we need to get the corners
+        const frameLeft = frame.x - (frame.width / 2);
+        const frameTop = frame.y - (frame.height / 2);
+        const frameRight = frame.x + (frame.width / 2);
+        const frameBottom = frame.y + (frame.height / 2);
+        
+        // Add padding to ensure frame title is visible
+        // Miro frame titles are typically about 40-50 pixels above the frame
+        const TITLE_PADDING = 60;
+        const CONTENT_PADDING = 20; // Small padding for breathing room
+        
+        // Calculate desired viewport dimensions
+        // We want to fit the frame in the available space (viewport width - panel)
+        const availableWidth = currentViewport.width - PANEL_WIDTH;
+        const frameDisplayWidth = frame.width + (CONTENT_PADDING * 2);
+        const frameDisplayHeight = frame.height + TITLE_PADDING + CONTENT_PADDING;
+        
+        // Calculate zoom level to fit frame in available space
+        const zoomToFitWidth = availableWidth / frameDisplayWidth;
+        const zoomToFitHeight = currentViewport.height / frameDisplayHeight;
+        const optimalZoom = Math.min(zoomToFitWidth, zoomToFitHeight, 1); // Don't zoom in more than 100%
+        
+        // Calculate the viewport dimensions at this zoom level
+        const newViewportWidth = currentViewport.width;
+        const newViewportHeight = currentViewport.height;
+        
+        // Calculate where to position the viewport
+        // We want the frame's top-left visible, accounting for the panel
+        const viewportLeft = frameLeft - CONTENT_PADDING - (PANEL_WIDTH / 2);
+        const viewportTop = frameTop - TITLE_PADDING;
+        
+        // Calculate the center point for the viewport
+        const viewportCenterX = viewportLeft + (newViewportWidth / 2);
+        const viewportCenterY = viewportTop + (newViewportHeight / 2);
+        
+        // Set the viewport with calculated position and zoom
+        await miro.board.viewport.set({
+            viewport: {
+                x: viewportCenterX,
+                y: viewportCenterY,
+                width: newViewportWidth / optimalZoom,
+                height: newViewportHeight / optimalZoom
+            },
+            animationDurationInMs: 300
+        });
+        
+        // Alternative approach if the above doesn't work as expected:
+        // Use zoomTo first, then adjust position
+        /*
+        await miro.board.viewport.zoomTo([frame]);
+        const viewport = await miro.board.viewport.get();
+        
+        // Calculate offset to account for panel and ensure top-left is visible
+        const panelOffset = (PANEL_WIDTH / 2) * (viewport.width / frame.width);
+        const topOffset = (TITLE_PADDING / 2) * (viewport.height / frame.height);
+        
+        await miro.board.viewport.set({
+            viewport: {
+                x: viewport.x - panelOffset,
+                y: viewport.y - topOffset,
+                width: viewport.width,
+                height: viewport.height
+            },
+            animationDurationInMs: 300
+        });
+        */
+        
+    } catch (error) {
+        console.error('Failed to navigate to frame:', error);
+        // showStatus('Failed to navigate to frame', 'error');
+    }
+}
 
         function handleUpgrade() {
             showStatus('Coming soon! Pro features will be available shortly.', 'success');
