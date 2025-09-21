@@ -234,7 +234,7 @@ async function navigateToFrame(frameId) {
         // Apply a simple rightward shift to account for the panel
         await miro.board.viewport.set({
             viewport: {
-                x: viewport.x + offset,
+                x: viewport.x - offset,
                 y: viewport.y,
                 width: viewport.width,
                 height: viewport.height
