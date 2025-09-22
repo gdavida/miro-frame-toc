@@ -1,6 +1,24 @@
-        let frames = [];
-        const HIERARCHY_SEPARATOR = '*-*';
+let frames = [];
+        const HIERARCHY_SEPARATORS = ['*-*', '//']; // Support both separators
         let currentTab = 'toc';
+
+        // Helper function to detect and split by either separator
+        function splitByHierarchySeparator(title) {
+            for (const separator of HIERARCHY_SEPARATORS) {
+                if (title.includes(separator)) {
+                    return {
+                        parts: title.split(separator).map(p => p.trim()),
+                        separator: separator,
+                        hasHierarchy: true
+                    };
+                }
+            }
+            return {
+                parts: [title],
+                separator: null,
+                hasHierarchy: false
+            };
+        }
 
         // Tab switching
         function switchTab(tabName) {
@@ -24,29 +42,8 @@
             if (tabName === 'toc') {
                 refreshFrames();
             }
-        }// Replace your existing switchTab function with this
-        function switchTab(tabName) {
-            currentTab = tabName;
-            
-            // Update tab link states
-            document.querySelectorAll('.tabLinks').forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            // Add active class to clicked tab
-            event.currentTarget.classList.add('active');
-            
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            
-            // Refresh frames if switching to TOC tab
-            if (tabName === 'toc') {
-                refreshFrames();
-            }
         }
+
         // Initialize the app
         async function initApp() {
             try {
@@ -127,13 +124,14 @@
             
             frames.forEach(frame => {
                 const title = frame.title || '';
+                const splitResult = splitByHierarchySeparator(title);
                 
-                if (title.includes(HIERARCHY_SEPARATOR)) {
+                if (splitResult.hasHierarchy) {
                     // This frame has hierarchy
-                    const parts = title.split(HIERARCHY_SEPARATOR).map(p => p.trim());
+                    const parts = splitResult.parts;
                     const level = parts.length - 1; // Last part is the actual name
                     const displayName = parts[parts.length - 1];
-                    const parentPath = parts.slice(0, -1).join(HIERARCHY_SEPARATOR);
+                    const parentPath = parts.slice(0, -1).join(splitResult.separator);
                     
                     hierarchicalFrames.push({
                         frame: frame,
@@ -214,38 +212,38 @@
             container.innerHTML = html;
         }
 
-async function navigateToFrame(frameId) {
-    try {
-        const frame = frames.find(f => f.id === frameId);
-        if (!frame) return;
-        
-        // Use Miro's built-in zoom to frame
-        await miro.board.viewport.zoomTo([frame]);
-        
-        // Get current viewport
-        const viewport = await miro.board.viewport.get();
-        
-        // Simple offset calculation
-        // The panel takes up roughly 368px, which is about 20-25% of typical screen width
-        // We'll offset by a proportion of the viewport width
-        const offsetRatio = 0.25; // Shift right by 15% of viewport width
-        const offset = viewport.width * offsetRatio;
-        
-        // Apply a simple rightward shift to account for the panel
-        await miro.board.viewport.set({
-            viewport: {
-                x: viewport.x - offset,
-                y: viewport.y,
-                width: viewport.width,
-                height: viewport.height
-            },
-            animationDurationInMs: 300
-        });
-        
-    } catch (error) {
-        console.error('Failed to navigate to frame:', error);
-    }
-}
+        async function navigateToFrame(frameId) {
+            try {
+                const frame = frames.find(f => f.id === frameId);
+                if (!frame) return;
+                
+                // Use Miro's built-in zoom to frame
+                await miro.board.viewport.zoomTo([frame]);
+                
+                // Get current viewport
+                const viewport = await miro.board.viewport.get();
+                
+                // Simple offset calculation
+                // The panel takes up roughly 368px, which is about 20-25% of typical screen width
+                // We'll offset by a proportion of the viewport width
+                const offsetRatio = 0.25; // Shift right by 15% of viewport width
+                const offset = viewport.width * offsetRatio;
+                
+                // Apply a simple rightward shift to account for the panel
+                await miro.board.viewport.set({
+                    viewport: {
+                        x: viewport.x - offset,
+                        y: viewport.y,
+                        width: viewport.width,
+                        height: viewport.height
+                    },
+                    animationDurationInMs: 300
+                });
+                
+            } catch (error) {
+                console.error('Failed to navigate to frame:', error);
+            }
+        }
 
         function handleUpgrade() {
             showStatus('Coming soon! Pro features will be available shortly.', 'success');
