@@ -1,5 +1,5 @@
 let frames = [];
-        const HIERARCHY_SEPARATORS = ['*-*', '//']; // Support both separators
+        const HIERARCHY_SEPARATORS = ['>>', '//', '<<']; // Support both separators
         let currentTab = 'toc';
 
         // Helper function to detect and split by either separator
