@@ -198,7 +198,7 @@ let frames = [];
                         <div class="toc-header">
                             ${indicator ? `<span class="hierarchy-indicator">${indicator}</span>` : ''}
                             <a href="#" class="frame-name" onclick="navigateToFrame('${frameId}'); return false;">
-                                ${escapeHtml(frameName)}
+                                ${frameName}
                                 <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
