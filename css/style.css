@@ -43,7 +43,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
+            flex-direction: row;
             background: linear-gradient(135deg, #ff6b9d 0%, #c66cfd 100%);
             width: 100%;
             padding: 10px 0 15px;
@@ -222,7 +222,7 @@
             justify-content: center;
             box-shadow: 0 -4px 20px rgba(255, 182, 193, 0.1);
             z-index: 100;
-            flex-direction: row;
+            flex-direction: column;
             text-align: center;
         }
 
