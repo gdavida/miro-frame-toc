@@ -20,6 +20,15 @@ let frames = [];
             };
         }
 
+
+        function normalizeTitle(title) {
+          return title
+            .replace(/››/g, '>>')
+            .replace(/««/g, '<<')
+            .trim();
+        }
+
+
         // Tab switching
         function switchTab(tabName) {
             currentTab = tabName;
@@ -123,7 +132,7 @@ let frames = [];
             const hierarchicalFrames = [];
             
             frames.forEach(frame => {
-                const title = frame.title || '';
+                const title = normalizeTitle(frame.title || '');
                 const splitResult = splitByHierarchySeparator(title);
                 
                 if (splitResult.hasHierarchy) {
