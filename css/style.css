@@ -71,6 +71,7 @@
     position: relative;
 }
 
+/* Button reset + tab link styles */
 .tabLinks {
     padding: 10px 5px;
     display: flex;
@@ -83,7 +84,14 @@
     user-select: none;
     font-weight: 400;
     letter-spacing: 0.2px;
-    width: 120px;;
+    width: 120px;
+    /* Button reset */
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    outline: none;
 }
 
 .tabLinks:nth-child(3) {
@@ -115,6 +123,35 @@
     background: linear-gradient(90deg, #ff6b9d 0%, #c66cfd 100%);
     border-radius: 2px 2px 0 0;
     animation: slideIn 0.3s ease;
+}
+
+/* Keyboard focus styles â€” visible only on keyboard navigation */
+.tabLinks:focus-visible {
+    outline: 2px solid #c66cfd;
+    outline-offset: -2px;
+    color: white;
+    background-color: rgba(198, 108, 253, 0.15);
+    border-radius: 2px;
+}
+
+.btn-refresh:focus-visible {
+    outline: 2px solid #c66cfd;
+    outline-offset: 2px;
+    border-radius: 50%;
+}
+
+.frame-name:focus-visible {
+    outline: 2px solid #c66cfd;
+    outline-offset: 2px;
+    border-radius: 4px;
+    color: #7c3aed;
+}
+
+/* General focus-visible for any other interactive elements */
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid #c66cfd;
+    outline-offset: 2px;
 }
 
 @keyframes slideIn {
