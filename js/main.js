@@ -20,8 +20,8 @@ let frames = [];
             };
         }
 
-        // Tab switching
-        function switchTab(tabName) {
+        // Tab switching — accepts the clicked element directly for reliable keyboard support
+        function switchTab(tabName, clickedEl) {
             currentTab = tabName;
             
             // Update tab link states
@@ -30,7 +30,9 @@ let frames = [];
             });
             
             // Add active class to clicked tab
-            event.currentTarget.classList.add('active');
+            if (clickedEl) {
+                clickedEl.classList.add('active');
+            }
             
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => {
